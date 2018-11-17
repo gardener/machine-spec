@@ -121,7 +121,7 @@ message ProbeResponse {
                                 //---------  Service Controller -------//
 
                                 
-service Controller {
+service Machine {
   rpc CreateMachine (CreateMachineRequest)
     returns (CreateMachineResponse) {}
 

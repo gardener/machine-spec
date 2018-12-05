@@ -107,16 +107,16 @@ message CreateMachineRequest {
 
   map<string, string> Parameters = 2;
 
-  map<string, string> Secrets = 3 [(cmi_secret) = true];
+  map<string, bytes> Secrets = 3 [(cmi_secret) = true];
 
   // ProviderConfig blob available inside the MachineObject.
-  string ProviderSpec = 4;
+  bytes ProviderSpec = 4;
 }
 
 message CreateMachineResponse {
   string Name = 1;
 
-  string ProviderID = 2;
+  string MachineID = 2;
 
   string NodeName = 3;
 
@@ -127,11 +127,13 @@ message DeleteMachineRequest {
   // The ID of the Machine to be deprovisioned.
   // This field is REQUIRED.
   string MachineID = 1;
+
+  bytes ProviderSpec = 4;
   
   // Secrets required by plugin to complete Machine deletion request.
   // This field is OPTIONAL. Refer to the `Secrets Requirements`
   // section on how to use this field.
-  map<string, string> Secrets = 2 [(cmi_secret) = true];
+  map<string, bytes> Secrets = 2 [(cmi_secret) = true];
 }
 
 message DeleteMachineResponse {
@@ -139,15 +141,17 @@ message DeleteMachineResponse {
 }
 
 message ListMachinesRequest {
-  map<string, string> Tags = 1;
+  bytes ProviderSpec = 1;
 
   string MachineID = 2;
 
-  map<string, string> Secrets = 3 [(cmi_secret) = true];
+  map<string, bytes> Secrets = 3 [(cmi_secret) = true];
 }
 
 message ListMachinesResponse {
   map<string, string> MachineList = 1;
+
+  string Error = 2;
 }
 
 message ControllerGetCapabilitiesRequest {

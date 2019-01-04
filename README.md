@@ -1,2 +1,2 @@
 # Machine-spec
-This project contains CMI Specification and protobuf files.
+This project contains cluster-machine-interface specification and protobuf files.

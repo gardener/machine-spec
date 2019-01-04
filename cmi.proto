@@ -7,12 +7,118 @@ import "google/protobuf/wrappers.proto";
 option go_package = "cmi";
 
 extend google.protobuf.FieldOptions {
-  // Indicates that a field MAY contain information that is sensitive
-  // and MUST be treated as such (e.g. not logged).
   bool cmi_secret = 1059;
 }
 
-                                //---------  Identity Controller -------//
+                              //---------  Machine Controller -------//
+
+                                
+service Machine {
+  rpc CreateMachine (CreateMachineRequest)
+    returns (CreateMachineResponse) {}
+
+  rpc DeleteMachine (DeleteMachineRequest)
+    returns (DeleteMachineResponse) {}
+
+  rpc ListMachines (ListMachinesRequest)
+    returns (ListMachinesResponse) {}
+
+  rpc ControllerGetCapabilities (ControllerGetCapabilitiesRequest)
+    returns (ControllerGetCapabilitiesResponse) {}
+}
+
+message CreateMachineRequest {
+
+  // Name is the name of the machine to be created by driver.
+  // This field is REQUIRED.
+  string Name = 1;
+
+  // Secrets is the map containing necessary credentials for cloud-provider to create the machine.
+  // This field is OPTIONAL.
+  map<string, bytes> Secrets = 3 [(cmi_secret) = true];
+
+  // ProviderSpec is the configuration needed to create a machine in bytes.
+  // Driver should parse this raw data into pre-defined spec in their respective projects.
+  bytes ProviderSpec = 4;
+}
+
+message CreateMachineResponse {
+  // Name of the machine to be created.
+  // This field is REQUIRED.
+  string Name = 1;
+  
+  // MachineID mapped to machine, this id should uniquely identify the real-machine with
+  // Machine object.
+  // This field is REQUIRED.
+  string MachineID = 2;
+
+  // NodeName is the name of the node-object registered to kubernetes.
+  // This field is REQUIRED.
+  string NodeName = 3;
+
+  // Error is the error thrown by the cloud-provider incase operation failed else nil.
+  string Error = 4;
+}
+
+message DeleteMachineRequest {
+  // MachineID is the id of the machine to be deleted.
+  // It should uniquely identify the real machine in cloud-provider.
+  // This field is REQUIRED.
+  string MachineID = 1;
+
+  // ProviderSpec is the configuration needed to delete the machine in bytes.
+  // This field is REQUIRED.
+  bytes ProviderSpec = 4;
+  
+  // Secrets is the map containing necessary credentials for cloud-provider to delete the machine.
+  // This field is OPTIONAL.
+  map<string, bytes> Secrets = 2 [(cmi_secret) = true];
+}
+
+message DeleteMachineResponse {
+  // Error is the error thrown by cloud-provider while deleting the machine.
+  // This field is REQUIRED.
+  string Error = 1;  
+}
+
+message ListMachinesRequest {
+  // ProviderSpec is the configuration needed to list machines.
+  // Driver should parse this raw data into pre-defined spec in their respective projects.
+  // This field is REQUIRED.
+  bytes ProviderSpec = 1;
+
+  // MachineID is the id of the machine to be deleted.
+  // It should uniquely identify the real machine in cloud-provider.
+  // ListMachines will return map of all the machines if MachineID field is kept empty, else 
+  // driver should return the details of the specific machine.
+  // This field is REQUIRED.
+  string MachineID = 2;
+
+  // Secrets is the map containing necessary credentials for cloud-provider to list the machines.
+  // This field is OPTIONAL.
+  map<string, bytes> Secrets = 3 [(cmi_secret) = true];
+}
+
+message ListMachinesResponse {
+  // MachineList is the map of list of machines. Format for the map should be map<MachineID, MachineName>. 
+  // This field is REQUIRED.
+  map<string, string> MachineList = 1;
+
+  // Error is the error thrown by cloud-provider while listing the machines.
+  string Error = 2;
+}
+
+// TODO[hardikdr]: Make use of this field.
+message ControllerGetCapabilitiesRequest {
+  // Empty for now
+}
+
+// TODO[hardikdr]: Make use of this field.
+message ControllerGetCapabilitiesResponse {
+  // Empty for now
+}
+
+                              //---------  Identity Controller -------//
 
 service Identity {
   rpc GetPluginInfo(GetPluginInfoRequest)
@@ -63,8 +169,6 @@ message PluginCapability {
       UNKNOWN = 0;
 
       CONTROLLER_SERVICE = 1;
-
-      MACHINE_ACCESSIBILITY_CONSTRAINTS = 2;
     }
     Type type = 1;
   }
@@ -81,83 +185,4 @@ message ProbeRequest {
 
 message ProbeResponse {
   .google.protobuf.BoolValue ready = 1;
-}
-
-
-                              //---------  Service Controller -------//
-
-                                
-service Machine {
-  rpc CreateMachine (CreateMachineRequest)
-    returns (CreateMachineResponse) {}
-
-  rpc DeleteMachine (DeleteMachineRequest)
-    returns (DeleteMachineResponse) {}
-
-  rpc ListMachines (ListMachinesRequest)
-    returns (ListMachinesResponse) {}
-
-  rpc ControllerGetCapabilities (ControllerGetCapabilitiesRequest)
-    returns (ControllerGetCapabilitiesResponse) {}
-}
-
-message CreateMachineRequest {
-
-  string Name = 1;
-
-  map<string, string> Parameters = 2;
-
-  map<string, bytes> Secrets = 3 [(cmi_secret) = true];
-
-  // ProviderConfig blob available inside the MachineObject.
-  bytes ProviderSpec = 4;
-}
-
-message CreateMachineResponse {
-  string Name = 1;
-
-  string MachineID = 2;
-
-  string NodeName = 3;
-
-  string Error = 4;
-}
-
-message DeleteMachineRequest {
-  // The ID of the Machine to be deprovisioned.
-  // This field is REQUIRED.
-  string MachineID = 1;
-
-  bytes ProviderSpec = 4;
-  
-  // Secrets required by plugin to complete Machine deletion request.
-  // This field is OPTIONAL. Refer to the `Secrets Requirements`
-  // section on how to use this field.
-  map<string, bytes> Secrets = 2 [(cmi_secret) = true];
-}
-
-message DeleteMachineResponse {
-  string Error = 1;  
-}
-
-message ListMachinesRequest {
-  bytes ProviderSpec = 1;
-
-  string MachineID = 2;
-
-  map<string, bytes> Secrets = 3 [(cmi_secret) = true];
-}
-
-message ListMachinesResponse {
-  map<string, string> MachineList = 1;
-
-  string Error = 2;
-}
-
-message ControllerGetCapabilitiesRequest {
-  // Empty for now
-}
-
-message ControllerGetCapabilitiesResponse {
-  // Empty for now
 }

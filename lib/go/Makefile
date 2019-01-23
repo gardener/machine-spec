@@ -84,7 +84,7 @@ export PATH := $(shell pwd):$(PATH)
 ########################################################################
 CMI_PROTO := ../../cmi.proto
 CMI_PKG_ROOT := github.com/gardener/machine-spec
-CMI_PKG_SUB := $(shell cat $(CMI_PROTO) | sed -n -e 's/^package.\([^;]*\).v[0-9]\+;$$/\1/p'|tr '.' '/')
+CMI_PKG_SUB := cmi
 CMI_BUILD := $(CMI_PKG_SUB)/.build
 CMI_GO := $(CMI_PKG_SUB)/cmi.pb.go
 CMI_A := cmi.a

@@ -115,11 +115,19 @@ message GetMachineResponse {
   // This field is REQUIRED.
   bool Exists = 1;
 
+  // Status contains the possible status for machines running on the cloud
+  enum Status {
+    Unknown = 0;
+    Running = 1;
+    Stopped = 2;
+  }
+  Status MachineStatus = 2;
+
   // Error is the error thrown by cloud-provider while listing the machines.
   // It is to be initialized to emptyString `` if no error.
   // But when there is an error, it is to contain the error message.
   // This field is REQUIRED.
-  string Error = 2;
+  string Error = 3;
 }
 
 message ListMachinesRequest {

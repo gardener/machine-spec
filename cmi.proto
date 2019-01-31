@@ -72,12 +72,6 @@ message CreateMachineResponse {
   // NodeName is the name of the node-object registered to kubernetes.
   // This field is REQUIRED.
   string NodeName = 3;
-
-  // Error is the error thrown by the cloud-provider while creating.
-  // It is to be initialized to emptyString `` if no error.
-  // But when there is an error, it is to contain the error message.
-  // This field is REQUIRED.
-  string Error = 4;
 }
 
 message DeleteMachineRequest {
@@ -92,11 +86,7 @@ message DeleteMachineRequest {
 }
 
 message DeleteMachineResponse {
-  // Error is the error thrown by the cloud-provider while deleting machine.
-  // It is to be initialized to emptyString `` if no error.
-  // But when there is an error, it is to contain the error message.
-  // This field is REQUIRED.
-  string Error = 1;
+  // Intentionally empty.
 }
 
 message GetMachineRequest {
@@ -122,12 +112,6 @@ message GetMachineResponse {
     Stopped = 2;
   }
   Status MachineStatus = 2;
-
-  // Error is the error thrown by cloud-provider while listing the machines.
-  // It is to be initialized to emptyString `` if no error.
-  // But when there is an error, it is to contain the error message.
-  // This field is REQUIRED.
-  string Error = 3;
 }
 
 message ListMachinesRequest {
@@ -145,12 +129,6 @@ message ListMachinesResponse {
   // MachineList is the map of list of machines. Format for the map should be map<MachineID, MachineName>.
   // This field is REQUIRED.
   map<string, string> MachineList = 1;
-
-  // Error is the error thrown by cloud-provider while listing the machines.
-  // It is to be initialized to emptyString `` if no error.
-  // But when there is an error, it is to contain the error message.
-  // This field is REQUIRED.
-  string Error = 2;
 }
 
 message ShutDownMachineRequest {
@@ -165,11 +143,7 @@ message ShutDownMachineRequest {
 }
 
 message ShutDownMachineResponse {
-  // Error is the error thrown by the cloud-provider while shutting down machine.
-  // It is to be initialized to emptyString `` if no error.
-  // But when there is an error, it is to contain the error message.
-  // This field is REQUIRED.
-  string Error = 1;
+  // Intentionally empty.
 }
 
 // TODO[hardikdr]: Make use of this field.

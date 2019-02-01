@@ -12,52 +12,66 @@ extend google.protobuf.FieldOptions {
 
                               //---------  Machine Controller -------//
 
-                                
 service Machine {
+  // CreateMachine is the gRPC call to create a machine.
+  // This method is REQUIRED.
   rpc CreateMachine (CreateMachineRequest)
     returns (CreateMachineResponse) {}
 
+  // DeleteMachine is the gRPC call to delete a machine.
+  // This method is REQUIRED.
   rpc DeleteMachine (DeleteMachineRequest)
     returns (DeleteMachineResponse) {}
 
+  // GetMachine is the gRPC call to get the status of a machine.
+  // This method is OPTIONAL.
+  rpc GetMachine (GetMachineRequest)
+    returns (GetMachineResponse) {}
+
+  // ListMachines is the gRPC call to list machines backed by the providerSpec.
+  // This method is OPTIONAL.
   rpc ListMachines (ListMachinesRequest)
     returns (ListMachinesResponse) {}
 
+  // ShutDownMachine is the gRPC call to shutdown/power-off a machine.
+  // This method is OPTIONAL.
+  rpc ShutDownMachine (ShutDownMachineRequest)
+    returns (ShutDownMachineResponse) {}
+
+  // ControllerGetCapabilities specifies the set of capabilties enabled to the controller.
+  // This method is OPTIONAL.
   rpc ControllerGetCapabilities (ControllerGetCapabilitiesRequest)
     returns (ControllerGetCapabilitiesResponse) {}
 }
 
 message CreateMachineRequest {
-
   // Name is the name of the machine to be created by driver.
   // This field is REQUIRED.
   string Name = 1;
 
+  // ProviderSpec is the configuration needed to create a machine in bytes.
+  // Driver should parse this raw data into pre-defined spec in their respective projects.
+  // This field is REQUIRED.
+  bytes ProviderSpec = 2;
+
   // Secrets is the map containing necessary credentials for cloud-provider to create the machine.
   // This field is OPTIONAL.
   map<string, bytes> Secrets = 3 [(cmi_secret) = true];
-
-  // ProviderSpec is the configuration needed to create a machine in bytes.
-  // Driver should parse this raw data into pre-defined spec in their respective projects.
-  bytes ProviderSpec = 4;
 }
 
 message CreateMachineResponse {
   // Name of the machine to be created.
   // This field is REQUIRED.
   string Name = 1;
-  
+
   // MachineID mapped to machine, this id should uniquely identify the real-machine with
-  // Machine object.
+  // Machine object by the cloud provider.
   // This field is REQUIRED.
   string MachineID = 2;
 
   // NodeName is the name of the node-object registered to kubernetes.
   // This field is REQUIRED.
   string NodeName = 3;
-
-  // Error is the error thrown by the cloud-provider incase operation failed else nil.
-  string Error = 4;
 }
 
 message DeleteMachineRequest {
@@ -66,19 +80,38 @@ message DeleteMachineRequest {
   // This field is REQUIRED.
   string MachineID = 1;
 
-  // ProviderSpec is the configuration needed to delete the machine in bytes.
-  // This field is REQUIRED.
-  bytes ProviderSpec = 4;
-  
   // Secrets is the map containing necessary credentials for cloud-provider to delete the machine.
   // This field is OPTIONAL.
   map<string, bytes> Secrets = 2 [(cmi_secret) = true];
 }
 
 message DeleteMachineResponse {
-  // Error is the error thrown by cloud-provider while deleting the machine.
+  // Intentionally empty.
+}
+
+message GetMachineRequest {
+  // MachineID is the id of the machine whose status is to be determined.
+  // It should uniquely identify the real machine in cloud-provider.
   // This field is REQUIRED.
-  string Error = 1;  
+  string MachineID = 1;
+
+  // Secrets is the map containing necessary credentials for cloud-provider to list the machines.
+  // This field is OPTIONAL.
+  map<string, bytes> Secrets = 2 [(cmi_secret) = true];
+}
+
+message GetMachineResponse {
+  // Exists tells if the machine exists on the cloud provider
+  // This field is REQUIRED.
+  bool Exists = 1;
+
+  // Status contains the possible status for machines running on the cloud
+  enum Status {
+    Unknown = 0;
+    Running = 1;
+    Stopped = 2;
+  }
+  Status MachineStatus = 2;
 }
 
 message ListMachinesRequest {
@@ -87,25 +120,30 @@ message ListMachinesRequest {
   // This field is REQUIRED.
   bytes ProviderSpec = 1;
 
-  // MachineID is the id of the machine to be deleted.
-  // It should uniquely identify the real machine in cloud-provider.
-  // ListMachines will return map of all the machines if MachineID field is kept empty, else 
-  // driver should return the details of the specific machine.
-  // This field is REQUIRED.
-  string MachineID = 2;
-
   // Secrets is the map containing necessary credentials for cloud-provider to list the machines.
   // This field is OPTIONAL.
   map<string, bytes> Secrets = 3 [(cmi_secret) = true];
 }
 
 message ListMachinesResponse {
-  // MachineList is the map of list of machines. Format for the map should be map<MachineID, MachineName>. 
+  // MachineList is the map of list of machines. Format for the map should be map<MachineID, MachineName>.
   // This field is REQUIRED.
   map<string, string> MachineList = 1;
+}
 
-  // Error is the error thrown by cloud-provider while listing the machines.
-  string Error = 2;
+message ShutDownMachineRequest {
+  // MachineID is the id of the machine to be shut-down.
+  // It should uniquely identify the real machine in cloud-provider.
+  // This field is REQUIRED.
+  string MachineID = 1;
+
+  // Secrets is the map containing necessary credentials for cloud-provider to delete the machine.
+  // This field is OPTIONAL.
+  map<string, bytes> Secrets = 2 [(cmi_secret) = true];
+}
+
+message ShutDownMachineResponse {
+  // Intentionally empty.
 }
 
 // TODO[hardikdr]: Make use of this field.

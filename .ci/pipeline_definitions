@@ -2,6 +2,7 @@ machine-spec:
   template: 'default'
   base_definition:
     repo: ~
+    steps:
     traits:
       version:
         preprocess:

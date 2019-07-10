@@ -8,7 +8,7 @@ machine-spec:
         preprocess:
           'inject-commit-hash'
         inject_effective_version: true
-  variants:
+  jobs:
     head-update:
       traits:
         draft_release: ~

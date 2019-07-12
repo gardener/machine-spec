@@ -156,9 +156,9 @@ message GetListOfVolumeIDsForExistingPVsRequest{
 }
 
 message GetListOfVolumeIDsForExistingPVsResponse{
-  // VolumeIDList is a list of VolumeIDs. Format for the map should be map<MachineID, MachineName>.
+  // VolumeIDs is a list of VolumeIDs.
   // This field is REQUIRED.
-  string VolumeIDList = 1;
+  repeated string VolumeIDs = 1;
 }
 
 // TODO[hardikdr]: Make use of this field.

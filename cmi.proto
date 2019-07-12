@@ -38,6 +38,10 @@ service Machine {
   rpc ShutDownMachine (ShutDownMachineRequest)
     returns (ShutDownMachineResponse) {}
 
+  // GetListOfVolumeIDsForExistingPVs() ([]string, error)
+  rpc GetListOfVolumeIDsForExistingPVs(GetListOfVolumeIDsForExistingPVsRequest)
+  returns (GetListOfVolumeIDsForExistingPVsResponse) {}
+
   // ControllerGetCapabilities specifies the set of capabilties enabled to the controller.
   // This method is OPTIONAL.
   rpc ControllerGetCapabilities (ControllerGetCapabilitiesRequest)
@@ -142,6 +146,19 @@ message ShutDownMachineRequest {
 
 message ShutDownMachineResponse {
   // Intentionally empty.
+}
+
+message GetListOfVolumeIDsForExistingPVsRequest{
+  // PVSpecsList is a list PV specs for whom volume-IDs are required
+  // Driver should parse this raw data into pre-defined list of PVSpecs
+  // This field is REQUIRED.
+  bytes PVSpecList = 1;
+}
+
+message GetListOfVolumeIDsForExistingPVsResponse{
+  // VolumeIDList is a list of VolumeIDs. Format for the map should be map<MachineID, MachineName>.
+  // This field is REQUIRED.
+  string VolumeIDList = 1;
 }
 
 // TODO[hardikdr]: Make use of this field.

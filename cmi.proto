@@ -24,23 +24,24 @@ service Machine {
     returns (DeleteMachineResponse) {}
 
   // GetMachine is the gRPC call to get the status of a machine.
-  // This method is OPTIONAL.
+  // This method is REQUIRED.
   rpc GetMachine (GetMachineRequest)
     returns (GetMachineResponse) {}
 
   // ListMachines is the gRPC call to list machines backed by the providerSpec.
-  // This method is OPTIONAL.
+  // This method is REQUIRED.
   rpc ListMachines (ListMachinesRequest)
     returns (ListMachinesResponse) {}
+
+  // GetListOfVolumeIDsForExistingPVs() is the gRPC call to list VolumeIDs (if exists) for PVs provided by PVSpecList.
+  // This method is REQUIRED.
+  rpc GetListOfVolumeIDsForExistingPVs(GetListOfVolumeIDsForExistingPVsRequest)
+  returns (GetListOfVolumeIDsForExistingPVsResponse) {}
 
   // ShutDownMachine is the gRPC call to shutdown/power-off a machine.
   // This method is OPTIONAL.
   rpc ShutDownMachine (ShutDownMachineRequest)
     returns (ShutDownMachineResponse) {}
-
-  // GetListOfVolumeIDsForExistingPVs() ([]string, error)
-  rpc GetListOfVolumeIDsForExistingPVs(GetListOfVolumeIDsForExistingPVsRequest)
-  returns (GetListOfVolumeIDsForExistingPVsResponse) {}
 
   // ControllerGetCapabilities specifies the set of capabilties enabled to the controller.
   // This method is OPTIONAL.

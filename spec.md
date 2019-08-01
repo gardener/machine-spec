@@ -89,7 +89,7 @@ Several of these possibilities are illustrated in the following figures.
 +-------------------------------------------+
 
 Figure 1: CMI client and CMI Plugin together make up
-the MCM. Both of them are typically expected to run
+the machine part of MCM. Both of them are typically expected to run
 as two containers is a same pod. However, both might
 run in different pods as well.
 ```
@@ -203,7 +203,7 @@ Scalar fields, even REQUIRED ones, will be defaulted if not specified and any fi
 #### Timeouts
 
 Any of the RPCs defined in this spec MAY timeout and MAY be retried.
-The CMI-Client may choose the maximum time it is willing to wait for a call, how long it waits between retries, and how many time it retries (these values are not negotiated between plugin and CO).
+The CMI-Client may choose the maximum time it is willing to wait for a call, how long it waits between retries, and how many time it retries (these values are not negotiated between plugin and CMI-Client).
 
 Idempotency requirements ensure that a retried call with the same fields continues where it left off when retried.
 
@@ -245,7 +245,7 @@ MCM introduces the CRD `MachineClass`. This is a blueprint for creating machines
 
 #### ProviderSpec
 
-The `MachineClass` resource contains a `providerSpec` field that is passed in the `ProviderSpec` request field to CMI methods such as [CreateMachine](#createmachine). The `ProviderSpec` can be though of a machine template to which the VM specification must be adopted from. It can contain key-value pairs of these specs. An example for these key-value pairs are given below.
+The `MachineClass` resource contains a `providerSpec` field that is passed in the `ProviderSpec` request field to CMI methods such as [CreateMachine](#createmachine). The `ProviderSpec` can be thought of as a machine template from which the VM specification must be adopted. It can contain key-value pairs of these specs. An example for these key-value pairs are given below.
 
 | Parameter | Mandatory | Type | Description |
 |---|---|---|---|

@@ -29,14 +29,14 @@ An implementation is compliant if it satisfies all the MUST, REQUIRED, and SHALL
 
 | Term            | Definition                                       |
 |-----------------|--------------------------------------------------|
-| CR              | Custom Resource (CR) defined by an cluster admin using the Kubernetes CR primitive. |
-| VM              | An Virtual Machine (VM) provisioned and managed by a provider. It could also refer to a physical machine in case of an bare metal provider.|
+| CR              | Custom Resource (CR) is defined by a cluster admin using the Kubernetes Custom Resource Definition  primitive. |
+| VM              | A Virtual Machine (VM) provisioned and managed by a provider. It could also refer to a physical machine in case of an bare metal provider.|
 | gRPC            | [gRPC Remote Procedure Calls](https://grpc.io/) |
-| MCM             | [Machine Controller Manager (MCM)](https://github.com/gardener/machine-controller-manager) is the controller used to manage VMs as an Custom Resource (CR) in Kubernetes. The MCM is made up of two containers - `CMI-Client` and `CMI-Plugin`. |
-| Machine         | Machine refers to a VM that is provisioned/managed by the MCM. It typically is the metadata used to store/represent an Virtual Machine |
+| MCM             | [Machine Controller Manager (MCM)](https://github.com/gardener/machine-controller-manager) is the controller used to manage VMs as a Custom Resource (CR) in Kubernetes. The MCM is made up of two containers - `CMI-Client` and `CMI-Plugin`. |
+| Machine         | Machine refers to a VM that is provisioned/managed by MCM. It typically describes the metadata used to store/represent an Virtual Machine |
 | Node            | Native kubernetes `Node` object. The objects you get to see when you do a "kubectl get nodes". Although nodes can be either physical/virtual machines, for the purposes of our discussions it refers to a VM. |
 | CMI-client      | CMI-Client contains the *core generic logic used to manage machines*. It doesn't contain any cloud specific code to manage VMs. It delegates the job of creating/updating/deleting VMs to the `CMI-Plugin` using gRPC primitives. |
-| CMI-Plugin      | CMI-Plugin (or) Plugin (or) CMI-Server is the plugin responsible for accepting gRPC calls from CMI-Client and invoking provider specific functionality to do the same. An simple example could be creation/deletion of VM on the provider. |
+| CMI-Plugin      | CMI-Plugin (or) Plugin (or) CMI-Server is the plugin responsible for accepting gRPC calls from CMI-Client and invoking provider specific functionality to do the same. A simple example could be creation/deletion of VM on the provider. |
 
 ## Objective
 
@@ -217,7 +217,7 @@ The status `code` MUST contain a [canonical error code](https://github.com/grpc/
 | Condition | gRPC Code | Description | Recovery Behavior |
 |-----------|-----------|-------------|-------------------|
 | Missing required field | 3 INVALID_ARGUMENT | Indicates that a required field is missing from the request. More human-readable information MAY be provided in the `status.message` field. | Caller MUST fix the request by adding the missing required field before retrying. |
-| Invalid or unsupported field in the request | 3 INVALID_ARGUMENT | Indicates that the one or more fields in this field is either not allowed by the Plugin or has an invalid value. More human-readable information MAY be provided in the gRPC `status.message` field. | Caller MUST fix the field before retrying. |
+| Invalid or unsupported field in the request | 3 INVALID_ARGUMENT | Indicates that the one or more fields in this field is either not allowed by the Plugin or has an invalid value. More human-readable information MAY be provided in the gRPC `status.message` field. | Caller MUST either replace the field with a valid or supported field or remove the invalid or unsupported field before retrying. |
 | Permission denied | 7 PERMISSION_DENIED | The Plugin is able to derive or otherwise infer an identity from the secrets present within an RPC, but that identity does not have permission to invoke the RPC. | System administrator SHOULD ensure that requisite permissions are granted, after which point the caller MAY retry the attempted RPC. |
 | Operation pending for machine | 10 ABORTED | Indicates that there is already an operation pending for the specified machine. In general the CMI-Client is responsible for ensuring that there is no more than one call "in-flight" per machine at a given time. However, in some circumstances, the CMI-Client MAY lose state (for example when the CMI-Client crashes and restarts), and MAY issue multiple calls simultaneously for the same machine. The Plugin, SHOULD handle this as gracefully as possible, and MAY return this error code to reject secondary calls. | Caller SHOULD ensure that there are no other calls pending for the specified machine, and then retry with exponential back off. |
 | Call not implemented | 12 UNIMPLEMENTED | The invoked RPC is not implemented by the Plugin or disabled in the Plugin's current mode of operation. | Caller MUST NOT retry. Caller MAY call `GetPluginCapabilities` to discover Plugin capabilities in future |

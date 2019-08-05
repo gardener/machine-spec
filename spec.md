@@ -4,7 +4,7 @@ Authors:
 
 * Prashanth <<prashanth@sap.com>> (@prashanth26)
 * Hardik Dodiya <<hardik.dodiya@sap.com>> (@hardikdr)
-* Gaurav Gupta <<gaurav.gupta07@sap.com>> (@ggaurav@10)
+* Gaurav Gupta <<gaurav.gupta07@sap.com>> (@ggaurav10)
 * Amshuman K R <<amshuman.rao.karaya@sap.com>> (@amshuman-kr)
 
 Credits:

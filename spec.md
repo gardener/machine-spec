@@ -256,7 +256,7 @@ The `MachineClass` resource contains a `providerSpec` field that is passed in th
 
 Most of the `ProviderSpec` fields are not mandatory. If not specified, the plugin passes an empty value in the respective `Create VM` parameter.
 
-The `tags` can be used to identify machines by ID
+The `tags` can be used to map a VM to its corresponding machine object's name
 
 The `ProviderSpec` is validated by methods that receive it as a request field for presence of all mandatory parameters and tags, and for validity of all parameters.
 

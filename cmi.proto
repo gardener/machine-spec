@@ -70,7 +70,7 @@ message GetPluginCapabilitiesResponse {
 message PluginCapability {
     message RPC {
         enum Type {
-            // UNKNOWN is used to specific an capaability beyond the set
+            // UNKNOWN is used to specific an capability beyond the set
             // provided below
             UNKNOWN = 0;
 
@@ -86,7 +86,7 @@ message PluginCapability {
             // GetMachine() interface
             GET_MACHINE = 3;
 
-            // SHUTDOWN_MACHINE tells that he plugin implements the
+            // SHUTDOWN_MACHINE tells that the plugin implements the
             // ShutDownMachine() interface
             SHUTDOWN_MACHINE = 4;
 
@@ -117,15 +117,15 @@ message ProbeResponse {
     // 2) The plugin is still initializing, but is otherwise perfectly
     //    healthy. In this case a successful response SHALL be returned
     //    with a readiness value of `false`. Calls to the plugin's
-    //    Controller and/or Node services MAY fail due to an incomplete
+    //    Machine services MAY fail due to an incomplete
     //    initialization state.
     // 3) The plugin has finished initializing and is ready to service
-    //    calls to its Controller and/or Node services. A successful
+    //    calls to its Machine services. A successful
     //    response is returned with a readiness value of `true`.
     //
     // This field is OPTIONAL. If not present, the caller SHALL assume
     // that the plugin is in a ready state and is accepting calls to its
-    // Controller and/or Node services (according to the plugin's reported
+    // Machine services (according to the plugin's reported
     // capabilities).
     .google.protobuf.BoolValue ready = 1;
 }
@@ -256,7 +256,7 @@ message ShutDownMachineRequest {
     // This field is REQUIRED.
     string MachineID = 1;
 
-    // Secrets is the map containing necessary credentials for cloud-provider to delete the machine.
+    // Secrets is the map containing necessary credentials for cloud-provider to shut down the machine.
     // This field is OPTIONAL.
     map<string, bytes> Secrets = 2 [(cmi_secret) = true];
 }
@@ -266,7 +266,7 @@ message ShutDownMachineResponse {
 }
 
 message GetListOfVolumeIDsForExistingPVsRequest{
-    // PVSpecsList is a list PV specs for whom volume-IDs are required
+    // PVSpecsList is a list of PV specs for whom volume-IDs are required
     // Driver should parse this raw data into pre-defined list of PVSpecs
     // This field is REQUIRED.
     bytes PVSpecList = 1;

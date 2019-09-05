@@ -835,16 +835,15 @@ This string MAY be surfaced by CMI-Client to end users.
     Support for OPTIONAL RPCs is optional.
 * The CMI-Client SHALL provide the listen-address for the Plugin by way of the `CMI_ENDPOINT` environment variable.
   Plugin components SHALL create, bind, and listen for RPCs on the specified listen address.
-  * Only UNIX Domain Sockets MAY be used as endpoints.
-    This will likely change in a future version of this specification to support non-UNIX platforms.
+  * Only Network Sockets MAY be used as endpoints.
 * All supported RPC services MUST be available at the listen address of the Plugin.
 
 ### Security
 
 * The CMI-Client operator and Plugin Supervisor SHOULD take steps to ensure that any and all communication between the CMI-Client and Plugin Service are secured according to best practices.
-* Communication between a CMI-Client and a Plugin SHALL be transported over UNIX Domain Sockets.
-  * gRPC is compatible with UNIX Domain Sockets; it is the responsibility of the CMI-Client operator and Plugin Supervisor to properly secure access to the Domain Socket using OS filesystem ACLs and/or other OS-specific security context tooling.
-  * VM Provider’s supplying stand-alone Plugin controller appliances, or other remote components that are incompatible with UNIX Domain Sockets MUST provide a software component that proxies communication between a UNIX Domain Socket and the remote component(s).
+* Communication between a CMI-Client and a Plugin SHALL be transported over Network Sockets.
+  * gRPC is compatible with Network Sockets; it is the responsibility of the CMI-Client operator and Plugin Supervisor to properly secure access to the Domain Socket using OS filesystem ACLs and/or other OS-specific security context tooling.
+  * VM Provider’s supplying stand-alone Plugin controller appliances, or other remote components that are incompatible with Network Sockets MUST provide a software component that proxies communication between a Network Socket and the remote component(s).
     Proxy components transporting communication over IP networks SHALL be responsible for securing communications over such networks.
 * Both the CMI-Client and Plugin SHOULD avoid accidental leakage of sensitive information (such as redacting such information from log files).
 
@@ -863,18 +862,18 @@ This string MAY be surfaced by CMI-Client to end users.
 
 #### Plugin Bootstrap Example
 
-* Supervisor -> Plugin: `CMI_ENDPOINT=unix:///path/to/unix/domain/socket.sock`.
-* Operator -> CMI-Client: use plugin at endpoint `unix:///path/to/unix/domain/socket.sock`.
-* CMI-Client: monitor `/path/to/unix/domain/socket.sock`.
-* Plugin: read `CMI_ENDPOINT`, create UNIX socket at specified path, bind and listen.
+* Supervisor -> Plugin: `CMI_ENDPOINT=tcp://127.0.0.1:8080`.
+* Operator -> CMI-Client: use plugin at endpoint `tcp://127.0.0.1:8080`.
+* CMI-Client: monitor `127.0.0.1:8080`.
+* Plugin: read `CMI_ENDPOINT`, create Network socket at specified path, bind and listen.
 * CMI-Client: observe that socket now exists, establish connection.
 * CMI-Client: invoke `GetPluginCapabilities`.
 
 #### Filesystem
 
 * Plugins SHALL NOT specify requirements that include or otherwise reference directories and/or files on the root filesystem of the CO.
-* Plugins SHALL NOT create additional files or directories adjacent to the UNIX socket specified by `CMI_ENDPOINT`; violations of this requirement constitute "abuse".
-  * The Plugin Supervisor is the ultimate authority of the directory in which the UNIX socket endpoint is created and MAY enforce policies to prevent and/or mitigate abuse of the directory by Plugins.
+* Plugins SHALL NOT create additional files or directories adjacent to the Network socket specified by `CMI_ENDPOINT`; violations of this requirement constitute "abuse".
+  * The Plugin Supervisor is the ultimate authority of the directory in which the Network socket endpoint is created and MAY enforce policies to prevent and/or mitigate abuse of the directory by Plugins.
 
 ### Supervised Lifecycle Management
 
@@ -896,13 +895,12 @@ This string MAY be surfaced by CMI-Client to end users.
 
 Network endpoint at which a Plugin SHALL host CMI RPC services. The general format is:
 
-    {scheme}://{authority}{endpoint}
+    {scheme}://{authority}:{endpoint}
 
 The following address types SHALL be supported by Plugins:
 
-    unix:///path/to/unix/socket.sock
-
-Note: All UNIX endpoints SHALL end with `.sock`. See [gRPC Name Resolution](https://github.com/grpc/grpc/blob/master/doc/naming.md).
+    - tcp://127.0.0.1:8080
+    - tcp://10.0.0.1:6443
 
 This variable is REQUIRED.
 

@@ -30,10 +30,10 @@ An implementation is compliant if it satisfies all the MUST, REQUIRED, and SHALL
 | Term            | Definition                                       |
 |-----------------|--------------------------------------------------|
 | CR              | Custom Resource (CR) is defined by a cluster admin using the Kubernetes Custom Resource Definition  primitive. |
-| VM              | A Virtual Machine (VM) provisioned and managed by a provider. It could also refer to a physical machine in case of an bare metal provider.|
+| VM              | A Virtual Machine (VM) provisioned and managed by a provider. It could also refer to a physical machine in case of a bare metal provider.|
 | gRPC            | [gRPC Remote Procedure Calls](https://grpc.io/) |
 | MCM             | [Machine Controller Manager (MCM)](https://github.com/gardener/machine-controller-manager) is the controller used to manage VMs as a Custom Resource (CR) in Kubernetes. The MCM is made up of two containers - `CMI-Client` and `CMI-Plugin`. |
-| Machine         | Machine refers to a VM that is provisioned/managed by MCM. It typically describes the metadata used to store/represent an Virtual Machine |
+| Machine         | Machine refers to a VM that is provisioned/managed by MCM. It typically describes the metadata used to store/represent a Virtual Machine |
 | Node            | Native kubernetes `Node` object. The objects you get to see when you do a "kubectl get nodes". Although nodes can be either physical/virtual machines, for the purposes of our discussions it refers to a VM. |
 | CMI-client      | CMI-Client contains the *core generic logic used to manage machines*. It doesn't contain any cloud specific code to manage VMs. It delegates the job of creating/updating/deleting VMs to the `CMI-Plugin` using gRPC primitives. |
 | CMI-Plugin      | CMI-Plugin (or) Plugin (or) CMI-Server is the plugin responsible for accepting gRPC calls from CMI-Client and invoking provider specific functionality to do the same. A simple example could be creation/deletion of VM on the provider. |
@@ -90,28 +90,29 @@ Several of these possibilities are illustrated in the following figures.
 
 Figure 1: CMI client and CMI Plugin together make up
 the machine part of MCM. Both of them are typically expected to run
-as two containers is a same pod. However, both might
+as two containers in a same pod. However, both might
 run in different pods as well.
 ```
 
 ### Machine Lifecycle
 
 ```
-  CreateMachine +------------+ DeleteMachine
- +------------->|  PENDING   +--------------+
- |              +---+----+---+              |
- |               VM |    | VM               v
-+++              is |    | is              +++
-|X|              Up |    | Down            | |
-+-+             +---v----+---+             +-+
-                | AVAILABLE  |
-                +---+----^---+
-                 VM |    | VM
-        is ready to |    | is not ready to
-      schedule pods |    | schedule pods
-                +---v----+---+
-                |   READY    |
-                +------------+
+       +-+                      +-+
+       |X|   +----------------->| |
+       +++   |                  +++
+        |    |                   ^
+        |    |                   | Delete
+        |    |                   | Machine
+        |    |                   |
+ Create |    | Delete       +----+-----+
+Machine |    | Machine      |  STOPPED |
+        |    |              +----^-----+
+        |    |                   |
+        |    |                   | Shutdown
+    +---v----+---+               | Machine
+    |   CREATED  |---------------+
+    +------------+
+```
 
 Figure 2: The lifecycle of a dynamically provisioned machine, from
 creation to destruction.
@@ -171,7 +172,7 @@ service Machine {
 #### Concurrency
 
 In general the CMI-Client is responsible for ensuring that there is no more than one call “in-flight” per machine at a given time.
-However, in some circumstances, the CMI-Client maybe lose state (for example when the CMI-Client crashes and restarts), and MAY issue multiple calls simultaneously for the same machine.
+However, in some circumstances, the CMI-Client MAY lose state (for example when the CMI-Client crashes and restarts), and MAY issue multiple calls simultaneously for the same machine.
 The plugin SHOULD handle this as gracefully as possible.
 The error code `ABORTED` MAY be returned by the plugin in this case (see the [Error Scheme](#error-scheme) section for details).
 
@@ -179,6 +180,7 @@ The error code `ABORTED` MAY be returned by the plugin in this case (see the [Er
 
 The requirements documented herein apply equally and without exception, unless otherwise noted, for the fields of all protobuf message types defined by this specification.
 Violation of these requirements MAY result in RPC message data that is not compatible with all CMI-Clients, CMI-Plugins and/or CMI middleware implementations.
+Make sure to not pass any sensitive data through plain text messages. Also make sure to not log any such sensitive data.
 
 ##### Size Limits
 
@@ -288,7 +290,7 @@ The general flow of the success case MAY be as follows (protos illustrated in YA
    request:
    response:
       name: org.foo.whizbang.super-plugin
-      vendor_version: blue-green
+      version: blue-green
       manifest:
         baz: qaz
 ```
@@ -300,8 +302,8 @@ The general flow of the success case MAY be as follows (protos illustrated in YA
    request:
    response:
      capabilities:
-       - service:
-           type: CONTROLLER_SERVICE
+       - rpc:
+           type: CREATE_MACHINE
 ```
 
 3. CMI-Client queries the readiness of the plugin.
@@ -338,6 +340,7 @@ message GetPluginInfoResponse {
     // manifest contains a map of key-value pairs to pass
     // any additonal information about the plugin.
     // Values are opaque to the CMI-Client.
+    // E.g. key = start-time, value = timestamp (xx.xx.xxxx xx:xx:xx IST).
     // This field is OPTIONAL.
     map<string, string> manifest = 3;
 }
@@ -359,7 +362,7 @@ message GetPluginCapabilitiesRequest {
 }
 
 message GetPluginCapabilitiesResponse {
-    // All the capabilities that the controller service supports.
+    // All the capabilities that the machine service supports.
     // This field is OPTIONAL.
     repeated PluginCapability capabilities = 1;
 }
@@ -368,7 +371,7 @@ message GetPluginCapabilitiesResponse {
 message PluginCapability {
     message RPC {
         enum Type {
-            // UNKNOWN is used to specific an capaability beyond the set
+            // UNKNOWN is used to specific an capability beyond the set
             // provided below
             UNKNOWN = 0;
 
@@ -437,15 +440,15 @@ message ProbeResponse {
     // 2) The plugin is still initializing, but is otherwise perfectly
     //    healthy. In this case a successful response SHALL be returned
     //    with a readiness value of `false`. Calls to the plugin's
-    //    Controller and/or Node services MAY fail due to an incomplete
+    //    Machine services MAY fail due to an incomplete
     //    initialization state.
     // 3) The plugin has finished initializing and is ready to service
-    //    calls to its Controller and/or Node services. A successful
+    //    calls to its Machine services. A successful
     //    response is returned with a readiness value of `true`.
     //
     // This field is OPTIONAL. If not present, the caller SHALL assume
     // that the plugin is in a ready state and is accepting calls to its
-    // Controller and/or Node services (according to the plugin's reported
+    // Machine services (according to the plugin's reported
     // capabilities).
     .google.protobuf.BoolValue ready = 1;
 }
@@ -473,11 +476,11 @@ This RPC will be called by the CMI-Client to provision a new machine on behalf o
 
 - If a machine corresponding to the specified machine `name` already exists, and is compatible with the specified `ProviderSpec` in the `CreateMachineRequest`, the Plugin MUST reply `0 OK` with the corresponding `CreateMachineResponse`.
 - The plugin can OPTIONALY make use of the secrets supplied in the `Secrets` map in the `CreateMachineRequest` to communicate with the provider.
-- The plugin must have an unique way to map a `machine` name to a `VM`. This could be implicitly provided by the provider by letting you set VM-names (or) could be explicitly specified by the plugin using appropriate tags to map the same.
+- The plugin must have a unique way to map a `machine` name to a `VM`. This could be implicitly provided by the provider by letting you set VM-names (or) could be explicitly specified by the plugin using appropriate tags to map the same.
 - This operation MUST be idempotent.
 
 - The `CreateMachineResponse` returned by this method is expected to return
-    - `MachineID` that uniquely identifys the VM at the provider. This is expected n the  matches with the node.Spec.ProviderID on the node object.
+    - `MachineID` that uniquely identifys the VM at the provider. This is expected to match with the node.Spec.ProviderID on the node object.
     - `NodeName` that is the expected name of the machine when it joins the cluster. It must match with the node name.
 
 ```protobuf
@@ -528,7 +531,7 @@ The CMI-Client MUST implement the specified error recovery behavior when it enco
 | 7 PERMISSION_DENIED | Insufficent permissions | The requestor doesn't have enough permissions to create an VM and it's required dependencies | Update requestor permissions to grant the same | N |
 | 8 RESOURCE_EXHAUSTED | Resource limits have been reached | The requestor doesn't have enough resource limits to process this creation request | Enhance resource limits associated with the user/account to process this | N |
 | 9 PRECONDITION_FAILED | VM is in inconsistent state | The VM is in a state that is invalid for this operation | Manual intervention might be needed to fix the state of the VM | N |
-| 10 ABORTED |  |  |  |  |
+| 10 ABORTED | Operation is pending | Indicates that there is already an operation pending for the specified machine | Wait until previous pending operation is processed | Y |
 | 11 OUT_OF_RANGE | Resources were out of range  | The requested number of CPUs, memory size, of FS size in ProviderSpec falls outside of the corresponding valid range | Update request paramaters to request valid resource requests | N |
 | 12 UNIMPLEMENTED | Not implemented | Unimplemented indicates operation is not implemented or not supported/enabled in this service. | Retry with an alternate logic or implement this method at the plugin. Most methods by default are in this state | N |
 | 13 INTERNAL | Major error | Means some invariants expected by underlying system has been broken. If you see one of these errors, something is very broken. | Needs manual intervension to fix this | N |
@@ -582,7 +585,7 @@ If the conditions defined below are encountered, the plugin MUST return the spec
 | 7 PERMISSION_DENIED | Insufficent permissions | The requestor doesn't have enough permissions to delete an VM and it's required dependencies | Update requestor permissions to grant the same | N |
 | 8 RESOURCE_EXHAUSTED |  |  |  |  |
 | 9 PRECONDITION_FAILED | VM is in inconsistent state | The VM is in a state that is invalid for this operation | Manual intervention might be needed to fix the state of the VM | N |
-| 10 ABORTED |  |  |  |  |
+| 10 ABORTED | Operation is pending | Indicates that there is already an operation pending for the specified machine | Wait until previous pending operation is processed | Y |
 | 11 OUT_OF_RANGE |  |  |  |  |  |
 | 12 UNIMPLEMENTED | Not implemented | Unimplemented indicates operation is not implemented or not supported/enabled in this service. | Retry with an alternate logic or implement this method at the plugin. Most methods by default are in this state | N |
 | 13 INTERNAL | Major error | Means some invariants expected by underlying system has been broken. If you see one of these errors, something is very broken. | Needs manual intervension to fix this | N |
@@ -642,7 +645,7 @@ If the conditions defined below are encountered, the plugin MUST return the spec
 | 2 UNKNOWN | Something went wrong | Not enough information on what went wrong | Retry operation after sometime | Y |
 | 3 INVALID_ARGUMENT | Re-check supplied parameters | Re-check the supplied `MachineID` and make sure that it is in the desired format and not a blank value. Exact issue to be given in `.message` | Update `MachineID` to fix issues. | N |
 | 4 DEADLINE_EXCEEDED | Timeout | The call processing exceeded supplied deadline | Retry operation after sometime | Y |
-| 5 NOT_FOUND |  |  |  |  |
+| 5 NOT_FOUND | Machine isn't found at provider | The machine could not be found at provider | Not required | N |
 | 6 ALREADY_EXISTS |  |  |  |  |
 | 7 PERMISSION_DENIED | Insufficent permissions | The requestor doesn't have enough permissions to get details for the VM and it's required dependencies | Update requestor permissions to grant the same | N |
 | 8 RESOURCE_EXHAUSTED |  |  |  |  |
@@ -701,7 +704,7 @@ If the conditions defined below are encountered, the plugin MUST return the spec
 | 7 PERMISSION_DENIED | Insufficent permissions | The requestor doesn't have enough permissions to shut down a VM and it's required dependencies | Update requestor permissions to grant the same | N |
 | 8 RESOURCE_EXHAUSTED |  |  |  |  |
 | 9 PRECONDITION_FAILED | VM is in inconsistent state | The VM is in a state that is invalid for this operation | Manual intervention might be needed to fix the state of the VM | N |
-| 10 ABORTED |  |  |  |  |
+| 10 ABORTED | Operation is pending | Indicates that there is already an operation pending for the specified machine | Wait until previous pending operation is processed | Y |
 | 11 OUT_OF_RANGE |  |  |  |  |  |
 | 12 UNIMPLEMENTED | Not implemented | Unimplemented indicates operation is not implemented or not supported/enabled in this service. | Retry with an alternate logic or implement this method at the plugin. Most methods by default are in this state | N |
 | 13 INTERNAL | Major error | Means some invariants expected by underlying system has been broken. If you see one of these errors, something is very broken. | Needs manual intervension to fix this | N |
@@ -779,7 +782,7 @@ This RPC will be called by the CMI-Client to get the `VolumeIDs` for the list of
 
 - On succesful returnal of a list of `Volume-IDs` for all supplied `PVs`, the Plugin MUST reply `0 OK`.
 - The `GetListOfVolumeIDsForExistingPVsResponse` is expected to return a repeated list of `strings` consisting of the `VolumeIDs` for `PVSpec` that could be extracted.
-- If for any `PV` the Plugin wasn't able to identify the `Volume-ID`, the plugin maybe chose to ignore it and return the `Volume-IDs` for the rest of the `PVs` for whom the `Volume-ID` was found.
+- If for any `PV` the Plugin wasn't able to identify the `Volume-ID`, the plugin MAY chose to ignore it and return the `Volume-IDs` for the rest of the `PVs` for whom the `Volume-ID` was found.
 - Getting the `VolumeID` from the `PVSpec` depends on the Cloud-provider. You can extract this information by parsing the `PVSpec` based on the `ProviderType`
     - https://github.com/kubernetes/api/blob/release-1.15/core/v1/types.go#L297-L339
     - https://github.com/kubernetes/api/blob/release-1.15//core/v1/types.go#L175-L257
@@ -871,7 +874,7 @@ This string MAY be surfaced by CMI-Client to end users.
 
 #### Filesystem
 
-* Plugins SHALL NOT specify requirements that include or otherwise reference directories and/or files on the root filesystem of the CO.
+* Plugins SHALL NOT specify requirements that include or otherwise reference directories and/or files on the root filesystem of the CMI Client.
 * Plugins SHALL NOT create additional files or directories adjacent to the Network socket specified by `CMI_ENDPOINT`; violations of this requirement constitute "abuse".
   * The Plugin Supervisor is the ultimate authority of the directory in which the Network socket endpoint is created and MAY enforce policies to prevent and/or mitigate abuse of the directory by Plugins.
 
@@ -923,13 +926,11 @@ Supervised plugins MAY be isolated and/or resource-bounded.
 ##### Available Services
 
 * Plugin Packages MAY support all or a subset of CMI services; service combinations MAY be configurable at runtime by the Plugin Supervisor.
-  * A plugin MUST know the "mode" in which it is operating (e.g. node, controller, or both).
   * This specification does not dictate the mechanism by which mode of operation MUST be discovered, and instead places that burden upon the VM Provider.
 * Misconfigured plugin software SHOULD fail-fast with an OS-appropriate error code.
 
 ##### Linux Capabilities
 
-* Plugin Supervisor SHALL guarantee that plugins will have `CAP_SYS_ADMIN` capability on Linux when running on Nodes.
 * Plugins SHOULD clearly document any additionally required capabilities and/or security context.
 
 ##### Namespaces
@@ -949,4 +950,4 @@ Supervised plugins MAY be isolated and/or resource-bounded.
 
 ### Deploying
 * **Recommended:** The CMI-Client and Plugin are typically expected to run as two containers inside a common `Pod`.
-* However, for the security reasons they could execute on seperate Pods provided they have an secure way to exchange data between them.
+* However, for the security reasons they could execute on seperate Pods provided they have a secure way to exchange data between them.

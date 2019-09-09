@@ -158,13 +158,13 @@ service Machine {
         returns (GetMachineResponse) {}
 
     rpc ListMachines (ListMachinesRequest)
-        returns (ListMachinesResponse) {}
+    returns (ListMachinesResponse) {}
 
     rpc ShutDownMachine (ShutDownMachineRequest)
-        returns (ShutDownMachineResponse) {}
+    returns (ShutDownMachineResponse) {}
 
-    rpc GetListOfVolumeIDsForExistingPVs(GetListOfVolumeIDsForExistingPVsRequest)
-        returns (GetListOfVolumeIDsForExistingPVsResponse) {}
+    rpc GetVolumeIDs(GetVolumeIDsRequest)
+        returns (GetVolumeIDsResponse) {}
 }
 
 ```
@@ -304,6 +304,8 @@ The general flow of the success case MAY be as follows (protos illustrated in YA
      capabilities:
        - rpc:
            type: CREATE_MACHINE
+       - rpc:
+           type: DELETE_MACHINE
 ```
 
 3. CMI-Client queries the readiness of the plugin.
@@ -315,6 +317,8 @@ The general flow of the success case MAY be as follows (protos illustrated in YA
 ```
 
 #### `GetPluginInfo`
+
+This REQUIRED RPC allows the CMI-Client to query information about the Plugin. It returns the `name`, `version` and any additional information about the plugin.
 
 ```protobuf
 message GetPluginInfoRequest {
@@ -376,24 +380,30 @@ message PluginCapability {
             UNKNOWN = 0;
 
             // CREATE_MACHINE tells that the plugin implements the
-            // CreateMachine() interface
+            // CreateMachine() RPC.
+            // Plugin is REQUIRED to provide this capability.
             CREATE_MACHINE = 1;
 
             // DELETE_MACHINE tells that the plugin implements the
-            // DeleteMachine() interface
+            // DeleteMachine() RPC.
+            // Plugin is REQUIRED to provide this capability.
             DELETE_MACHINE = 2;
 
             // GET_MACHINE tells that the plugin implements the
-            // GetMachine() interface
+            // GetMachine() RPC
             GET_MACHINE = 3;
 
-            // SHUTDOWN_MACHINE tells that he plugin implements the
-            // ShutDownMachine() interface
+            // SHUTDOWN_MACHINE tells that the plugin implements the
+            // ShutDownMachine() RPC
             SHUTDOWN_MACHINE = 4;
 
-            // GET_LIST_OF_VOLUMEIDS_FOR_EXISTING_PVS tells if the plugin
-            // implements the GetListOfVolumeIDsForExistingPVs() interface
-            GET_LIST_OF_VOLUMEIDS_FOR_EXISTING_PVS = 5;
+            // LIST_MACHINES tells that the plugin implements the
+            // ListMachines() RPC
+            LIST_MACHINE = 5;
+
+            // GET_VOLUME_IDS tells if the plugin
+            // implements the GetVolumeIDs() RPC
+            GET_VOLUME_IDS = 6;
         }
         Type type = 1;
     }
@@ -410,7 +420,7 @@ If the plugin is unable to complete the GetPluginCapabilities call successfully,
 
 #### `Probe`
 
-A Plugin MUST implement this RPC call.
+A Plugin is REQUIRED implement this RPC call.
 The primary utility of the Probe RPC is to verify that the plugin is in a healthy and ready state.
 If an unhealthy state is reported, via a non-success response, a CMI-Client MAY take action with the intent to bring the plugin to a healthy state.
 Such actions MAY include, but SHALL NOT be limited to, the following:
@@ -471,7 +481,7 @@ The CMI-Client MUST implement the specified error recovery behavior when it enco
 
 #### `CreateMachine`
 
-A Plugin MUST implement this RPC call if it has `CREATE_MACHINE` capability.
+A Plugin is REQUIRED to implement this RPC and set the `CREATE_MACHINE` capability.
 This RPC will be called by the CMI-Client to provision a new machine on behalf of a user.
 
 - If a machine corresponding to the specified machine `name` already exists, and is compatible with the specified `ProviderSpec` in the `CreateMachineRequest`, the Plugin MUST reply `0 OK` with the corresponding `CreateMachineResponse`.
@@ -544,7 +554,7 @@ This string MAY be surfaced by CMI-Client to end users.
 
 #### `DeleteMachine`
 
-A Plugin MUST implement this RPC call if it has `DELETE_MACHINE` capability.
+A Plugin is REQUIRED to implement this RPC and set the `DELETE_MACHINE` capability.
 This RPC will be called by the CMI-Client to deprovision a machine.
 
 - If a VM corresponding to the specified `MachineID` does not exist or the artifacts associated with the VM do not exist anymore, the Plugin MUST reply `0 OK`.
@@ -600,6 +610,7 @@ This string MAY be surfaced by CMI-Client to end users.
 
 A Plugin MUST implement this RPC call if it has `GET_MACHINE` capability.
 This RPC will be called by the CMI-Client to get status of a machine.
+This helps in optimizing the working of the plugin by avoiding unwanted calls to `CreateMachine()` and `DeleteMachine()`.
 
 - If a VM corresponding to the specified `MachineID` exists on provider the `Exists` field in the response must be set to `True` else the field is to be set to `False`.
 - If a VM exists, the Plugin is expected to return a value in the `MachineStatus` field. The possible values for the same is provided by the enum below.
@@ -720,6 +731,7 @@ This string MAY be surfaced by CMI-Client to end users.
 A Plugin MUST implement this RPC call if it has `LIST_MACHINES` capability.
 The Plugin SHALL return the information about all the machines associated with the `ProviderSpec`.
 The CMI-Client SHALL NOT expect a consistent "view" of all machines when paging through the machines list via multiple calls to `ListMachines`.
+This optional RPC helps in cleaning up orphan VMs present in the cluster.
 
 - If the Plugin succeeded in returning a list of `machines-names` with their corresponding `machine-IDs`, then return `0 OK`.
 - The `ListMachineResponse` contains a map of `MachineList` whose
@@ -775,13 +787,13 @@ The CMI-Client MUST implement the specified error recovery behavior when it enco
 The status `message` MUST contain a human readable description of error, if the status `code` is not `OK`.
 This string MAY be surfaced by CMI-Client to end users.
 
-#### `GetListOfVolumeIDsForExistingPVs`
+#### `GetVolumeIDs`
 
-A Plugin MUST implement this RPC call if it has `GET_LIST_OF_VOLUMEIDS_FOR_EXISTING_PVS` capability.
+A Plugin MUST implement this RPC call if it has `GET_VOLUME_IDS` capability.
 This RPC will be called by the CMI-Client to get the `VolumeIDs` for the list of `PersistantVolumes (PVs)` supplied.
 
 - On succesful returnal of a list of `Volume-IDs` for all supplied `PVs`, the Plugin MUST reply `0 OK`.
-- The `GetListOfVolumeIDsForExistingPVsResponse` is expected to return a repeated list of `strings` consisting of the `VolumeIDs` for `PVSpec` that could be extracted.
+- The `GetVolumeIDsResponse` is expected to return a repeated list of `strings` consisting of the `VolumeIDs` for `PVSpec` that could be extracted.
 - If for any `PV` the Plugin wasn't able to identify the `Volume-ID`, the plugin MAY chose to ignore it and return the `Volume-IDs` for the rest of the `PVs` for whom the `Volume-ID` was found.
 - Getting the `VolumeID` from the `PVSpec` depends on the Cloud-provider. You can extract this information by parsing the `PVSpec` based on the `ProviderType`
     - https://github.com/kubernetes/api/blob/release-1.15/core/v1/types.go#L297-L339
@@ -789,21 +801,21 @@ This RPC will be called by the CMI-Client to get the `VolumeIDs` for the list of
 - This operation MUST be idempotent.
 
 ```protobuf
-message GetListOfVolumeIDsForExistingPVsRequest{
-    // PVSpecsList is a list PV specs for whom volume-IDs are required
+message GetVolumeIDsRequest{
+    // PVSpecsList is a list of PV specs for whom volume-IDs are required
     // Driver should parse this raw data into pre-defined list of PVSpecs
     // This field is REQUIRED.
     bytes PVSpecList = 1;
 }
 
-message GetListOfVolumeIDsForExistingPVsResponse{
+message GetVolumeIDsResponse{
     // VolumeIDs is a list of VolumeIDs.
     // This field is REQUIRED.
     repeated string VolumeIDs = 1;
 }
 ```
 
-##### GetListOfVolumeIDsForExistingPVs Errors
+##### GetVolumeIDs Errors
 
 | gRPC Code | Condition | Description | Recovery Behavior | Auto Retry Required |
 |-----------|-----------|-------------|-------------------|------------|

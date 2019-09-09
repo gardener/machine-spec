@@ -19,7 +19,7 @@ service Identity {
         returns (GetPluginInfoResponse) {}
 
     // GetPluginCapabilities returns the set of capabilities for the plugin
-    // This method is OPTIONAL.
+    // This method is REQUIRED.
     rpc GetPluginCapabilities(GetPluginCapabilitiesRequest)
         returns (GetPluginCapabilitiesResponse) {}
 
@@ -75,24 +75,30 @@ message PluginCapability {
             UNKNOWN = 0;
 
             // CREATE_MACHINE tells that the plugin implements the
-            // CreateMachine() interface
+            // CreateMachine() RPC.
+            // Plugin is REQUIRED to provide this capability.
             CREATE_MACHINE = 1;
 
             // DELETE_MACHINE tells that the plugin implements the
-            // DeleteMachine() interface
+            // DeleteMachine() RPC.
+            // Plugin is REQUIRED to provide this capability.
             DELETE_MACHINE = 2;
 
             // GET_MACHINE tells that the plugin implements the
-            // GetMachine() interface
+            // GetMachine() RPC
             GET_MACHINE = 3;
 
-            // SHUTDOWN_MACHINE tells that the plugin implements the
-            // ShutDownMachine() interface
-            SHUTDOWN_MACHINE = 4;
+            // LIST_MACHINES tells that the plugin implements the
+            // ListMachines() RPC
+            LIST_MACHINES = 4;
 
-            // GET_LIST_OF_VOLUMEIDS_FOR_EXISTING_PVS tells if the plugin
-            // implements the GetListOfVolumeIDsForExistingPVs() interface
-            GET_LIST_OF_VOLUMEIDS_FOR_EXISTING_PVS = 5;
+            // SHUTDOWN_MACHINE tells that the plugin implements the
+            // ShutDownMachine() RPC
+            SHUTDOWN_MACHINE = 5;
+
+            // GET_VOLUME_IDS tells if the plugin
+            // implements the GetVolumeIDs() RPC
+            GET_VOLUME_IDS = 6;
         }
         Type type = 1;
     }
@@ -144,25 +150,25 @@ service Machine {
         returns (DeleteMachineResponse) {}
 
     // GetMachine is the gRPC call to get the status of a machine.
-    // This method is REQUIRED.
+    // This method is OPTIONAL.
     rpc GetMachine (GetMachineRequest)
         returns (GetMachineResponse) {}
 
     // ListMachines is the gRPC call to list machines backed by the providerSpec.
-    // This method is REQUIRED.
+    // This method is OPTIONAL.
     rpc ListMachines (ListMachinesRequest)
-        returns (ListMachinesResponse) {}
-
-    // GetListOfVolumeIDsForExistingPVs() is the gRPC call to list VolumeIDs
-    // (if exists) for PVs provided by PVSpecList.
-    // This method is REQUIRED.
-    rpc GetListOfVolumeIDsForExistingPVs(GetListOfVolumeIDsForExistingPVsRequest)
-        returns (GetListOfVolumeIDsForExistingPVsResponse) {}
+    returns (ListMachinesResponse) {}
 
     // ShutDownMachine is the gRPC call to shutdown/power-off a machine.
     // This method is OPTIONAL.
     rpc ShutDownMachine (ShutDownMachineRequest)
-        returns (ShutDownMachineResponse) {}
+    returns (ShutDownMachineResponse) {}
+
+    // GetVolumeIDs() is the gRPC call to list VolumeIDs
+    // (if exists) for PVs provided by PVSpecList.
+    // This method is OPTIONAL.
+    rpc GetVolumeIDs(GetVolumeIDsRequest)
+        returns (GetVolumeIDsResponse) {}
 }
 
 message CreateMachineRequest {
@@ -265,14 +271,14 @@ message ShutDownMachineResponse {
     // Intentionally empty.
 }
 
-message GetListOfVolumeIDsForExistingPVsRequest{
+message GetVolumeIDsRequest{
     // PVSpecsList is a list of PV specs for whom volume-IDs are required
     // Driver should parse this raw data into pre-defined list of PVSpecs
     // This field is REQUIRED.
     bytes PVSpecList = 1;
 }
 
-message GetListOfVolumeIDsForExistingPVsResponse{
+message GetVolumeIDsResponse{
     // VolumeIDs is a list of VolumeIDs.
     // This field is REQUIRED.
     repeated string VolumeIDs = 1;

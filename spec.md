@@ -116,10 +116,10 @@ Machine |    | Machine      |  STOPPED |
 
 Figure 2: The lifecycle of a dynamically provisioned machine, from
 creation to destruction.
-```
 
 The above diagrams illustrate a general expectation with respect to how a MCM manages the lifecycle of a machine via the API presented in this specification.
-Plugins SHOULD expose a minimum set of a REQUIRED RPCs (`CreateMachine, `DeleteMachine`). Other RPCs (like `GetMachine`, `ShutDownMachine`, `ListMachines` and `GetVolumeIDs`) CAN be optionally implemented. However, it is highly recommended to implement these OPTIONAL RPCs for an optimized working of CMI Client. For more details on the optimizations provided for each OPTIONAL RPC, please refer the sections for each of the RPC descriptions. 
+
+:warning: Plugins SHOULD expose a minimum set of a REQUIRED RPCs (`CreateMachine`, `DeleteMachine`). Other RPCs (like `GetMachine`, `ShutDownMachine`, `ListMachines` and `GetVolumeIDs`) CAN be optionally implemented. However, it is highly recommended to implement these OPTIONAL RPCs for an optimized working of CMI Client. For more details on the optimizations provided for each OPTIONAL RPC, please refer the sections for each of the RPC descriptions.
 Unsupported RPCs SHOULD return an appropriate error code that indicates such (e.g. `CALL_NOT_IMPLEMENTED`).
 
 ## Container Machine Interface

@@ -1,4 +1,4 @@
-# Container Machine Interface (CMI)
+# Common Machine Interface (CMI)
 
 Authors:
 

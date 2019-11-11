@@ -496,12 +496,12 @@ This RPC will be called by the CMI-Client to provision a new machine on behalf o
 
 ```protobuf
 message CreateMachineRequest {
-    // Name is the name of the machine to be created by driver.
+    // Name is the name of the machine to be created by plugin.
     // This field is REQUIRED.
     string Name = 1;
 
     // ProviderSpec is the configuration needed to create a machine in bytes.
-    // Driver should parse this raw data into pre-defined spec in their respective projects.
+    // Plugin should parse this raw data into pre-defined spec in their respective projects.
     // This field is REQUIRED.
     bytes ProviderSpec = 2;
 
@@ -744,7 +744,7 @@ This optional RPC helps in cleaning up orphan VMs present in the cluster. If not
 ```protobuf
 message ListMachinesRequest {
     // ProviderSpec is the configuration needed to list machines.
-    // Driver should parse this raw data into pre-defined spec in their respective projects.
+    // Plugin should parse this raw data into pre-defined spec in their respective projects.
     // This field is REQUIRED.
     bytes ProviderSpec = 1;
 
@@ -806,7 +806,7 @@ This optional RPC helps in serailzied eviction of pods with PVs while draining o
 ```protobuf
 message GetVolumeIDsRequest{
     // PVSpecsList is a list of PV specs for whom volume-IDs are required
-    // Driver should parse this raw data into pre-defined list of PVSpecs
+    // Plugin should parse this raw data into pre-defined list of PVSpecs
     // This field is REQUIRED.
     bytes PVSpecList = 1;
 }

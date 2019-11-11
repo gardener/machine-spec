@@ -149,10 +149,10 @@ service Machine {
     rpc DeleteMachine (DeleteMachineRequest)
         returns (DeleteMachineResponse) {}
 
-    // GetMachine is the gRPC call to get the status of a machine.
+    // GetMachineStatus is the gRPC call to get the status of a machine.
     // This method is OPTIONAL.
-    rpc GetMachine (GetMachineRequest)
-        returns (GetMachineResponse) {}
+    rpc GetMachineStatus (GetMachineStatusRequest)
+        returns (GetMachineStatusResponse) {}
 
     // ListMachines is the gRPC call to list machines backed by the providerSpec.
     // This method is OPTIONAL.
@@ -184,6 +184,12 @@ message CreateMachineRequest {
     // Secrets is the map containing necessary credentials for cloud-provider to create the machine.
     // This field is OPTIONAL.
     map<string, bytes> Secrets = 3 [(cmi_secret) = true];
+
+    // LastKnownState is any additional information (if required) that can used by the plugin.
+    // It can be used by the plugin to recover from the last execution/error state.
+    // Plugin should parse this raw data into it's desired format.
+    // This field is OPTIONAL.
+    bytes LastKnownState = 4;
 }
 
 message CreateMachineResponse {
@@ -197,46 +203,54 @@ message CreateMachineResponse {
     // NodeName is the name of the node-object registered to kubernetes.
     // This field is REQUIRED.
     string NodeName = 2;
+
+     // LastKnownState is any additional information (if required) that can used by the plugin.
+    // It can be the final state of the executing call.
+    // Could be used by the plugin to recover from the current execution/error state in any future calls.
+    // Plugin should return a raw bytes string.
+    // This field is OPTIONAL.
+    bytes LastKnownState = 3;
 }
 
 message DeleteMachineRequest {
-    // MachineID is the id of the machine to be deleted.
-    // It should uniquely identify the real machine in cloud-provider.
+    // Name is the name of the machine object for which a VM is to be deleted.
     // This field is REQUIRED.
-    string MachineID = 1;
+    string Name = 1;
 
     // Secrets is the map containing necessary credentials for cloud-provider to delete the machine.
     // This field is OPTIONAL.
     map<string, bytes> Secrets = 2 [(cmi_secret) = true];
+
+    // LastKnownState is any additional information (if required) that can used by the plugin.
+    // It can be used by the plugin to recover from the last execution/error state.
+    // Plugin should parse this raw data into it's desired format.
+    // This field is OPTIONAL.
+    bytes LastKnownState = 3;
 }
 
 message DeleteMachineResponse {
-    // Intentionally empty.
+    // LastKnownState is any additional information (if required) that can used by the plugin.
+    // It can be the final state of the executing call.
+    // Could be used by the plugin to recover from the current execution/error state in any future calls.
+    // Plugin should return a raw bytes string.
+    // This field is OPTIONAL.
+    bytes LastKnownState = 1;
 }
 
-message GetMachineRequest {
-    // MachineID is the id of the machine whose status is to be determined.
-    // It should uniquely identify the real machine in cloud-provider.
+message GetMachineStatusRequest {
+    // Name is name of the machine object from which the VM is to be identified.
+    // The plugin is responsible to issuing a get call for a VM backed by this machine name.
     // This field is REQUIRED.
-    string MachineID = 1;
+    string Name = 1;
 
     // Secrets is the map containing necessary credentials for cloud-provider to list the machines.
     // This field is OPTIONAL.
     map<string, bytes> Secrets = 2 [(cmi_secret) = true];
 }
 
-message GetMachineResponse {
-    // Exists tells if the machine exists on the cloud provider
-    // This field is REQUIRED.
-    bool Exists = 1;
-
-    // Status contains the possible status for machines running on the cloud
-    enum Status {
-        Unknown = 0;
-        Running = 1;
-        Stopped = 2;
-    }
-    Status MachineStatus = 2;
+message GetMachineStatusResponse {
+    // Intentionally empty.
+    // Returns a non-error gRPC response if VM with matching machine object name is found.
 }
 
 message ListMachinesRequest {
@@ -257,18 +271,29 @@ message ListMachinesResponse {
 }
 
 message ShutDownMachineRequest {
-    // MachineID is the id of the machine to be shut-down.
-    // It should uniquely identify the real machine in cloud-provider.
+    // Name is the machine object name for whose VM, the shutdown call is to be invoked.
+    // The plugin is responsible to issuing a shutdown call for a VM backed by this machine name.
     // This field is REQUIRED.
-    string MachineID = 1;
+    string Name = 1;
 
     // Secrets is the map containing necessary credentials for cloud-provider to shut down the machine.
     // This field is OPTIONAL.
     map<string, bytes> Secrets = 2 [(cmi_secret) = true];
+
+    // LastKnownState is any additional information (if required) that can used by the plugin.
+    // It can be used by the plugin to recover from the last execution/error state.
+    // Plugin should parse this raw data into it's desired format.
+    // This field is OPTIONAL.
+    bytes LastKnownState = 3;
 }
 
 message ShutDownMachineResponse {
-    // Intentionally empty.
+    // LastKnownState is any additional information (if required) that can used by the plugin.
+    // It can be the final state of the executing call.
+    // Could be used by the plugin to recover from the current execution/error state in any future calls.
+    // Plugin should return a raw bytes string.
+    // This field is OPTIONAL.
+    bytes LastKnownState = 1;
 }
 
 message GetVolumeIDsRequest{

@@ -217,15 +217,20 @@ message DeleteMachineRequest {
     // This field is REQUIRED.
     string Name = 1;
 
+    // ProviderSpec is needed to filter VMs based a cluster before deleting.
+    // Plugin should parse this raw data into pre-defined spec in their respective projects.
+    // This field is REQUIRED.
+    bytes ProviderSpec = 2;
+
     // Secrets is the map containing necessary credentials for cloud-provider to delete the machine.
     // This field is OPTIONAL.
-    map<string, bytes> Secrets = 2 [(cmi_secret) = true];
+    map<string, bytes> Secrets = 3 [(cmi_secret) = true];
 
     // LastKnownState is any additional information (if required) that can used by the plugin.
     // It can be used by the plugin to recover from the last execution/error state.
     // Plugin should parse this raw data into it's desired format.
     // This field is OPTIONAL.
-    bytes LastKnownState = 3;
+    bytes LastKnownState = 4;
 }
 
 message DeleteMachineResponse {
@@ -243,9 +248,14 @@ message GetMachineStatusRequest {
     // This field is REQUIRED.
     string Name = 1;
 
+    // ProviderSpec is needed to filter VMs based a cluster before getting the status.
+    // Plugin should parse this raw data into pre-defined spec in their respective projects.
+    // This field is REQUIRED.
+    bytes ProviderSpec = 2;
+
     // Secrets is the map containing necessary credentials for cloud-provider to list the machines.
     // This field is OPTIONAL.
-    map<string, bytes> Secrets = 2 [(cmi_secret) = true];
+    map<string, bytes> Secrets = 3 [(cmi_secret) = true];
 }
 
 message GetMachineStatusResponse {
@@ -284,15 +294,20 @@ message ShutDownMachineRequest {
     // This field is REQUIRED.
     string Name = 1;
 
+    // ProviderSpec is needed to filter VMs based a cluster before shutting down.
+    // Plugin should parse this raw data into pre-defined spec in their respective projects.
+    // This field is REQUIRED.
+    bytes ProviderSpec = 2;
+
     // Secrets is the map containing necessary credentials for cloud-provider to shut down the machine.
     // This field is OPTIONAL.
-    map<string, bytes> Secrets = 2 [(cmi_secret) = true];
+    map<string, bytes> Secrets = 3 [(cmi_secret) = true];
 
     // LastKnownState is any additional information (if required) that can used by the plugin.
     // It can be used by the plugin to recover from the last execution/error state.
     // Plugin should parse this raw data into it's desired format.
     // This field is OPTIONAL.
-    bytes LastKnownState = 3;
+    bytes LastKnownState = 4;
 }
 
 message ShutDownMachineResponse {

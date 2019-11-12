@@ -84,9 +84,9 @@ message PluginCapability {
             // Plugin is REQUIRED to provide this capability.
             DELETE_MACHINE = 2;
 
-            // GET_MACHINE tells that the plugin implements the
-            // GetMachine() RPC
-            GET_MACHINE = 3;
+            // GET_MACHINE_STATUS tells that the plugin implements the
+            // GetMachineStatus() RPC
+            GET_MACHINE_STATUS = 3;
 
             // LIST_MACHINES tells that the plugin implements the
             // ListMachines() RPC

@@ -76,7 +76,7 @@ func (x PluginCapability_RPC_Type) String() string {
 	return proto.EnumName(PluginCapability_RPC_Type_name, int32(x))
 }
 func (PluginCapability_RPC_Type) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_cmi_650dc7eb92cbbfa4, []int{4, 0, 0}
+	return fileDescriptor_cmi_44c33cf4e90c6001, []int{4, 0, 0}
 }
 
 type GetPluginInfoRequest struct {
@@ -89,7 +89,7 @@ func (m *GetPluginInfoRequest) Reset()         { *m = GetPluginInfoRequest{} }
 func (m *GetPluginInfoRequest) String() string { return proto.CompactTextString(m) }
 func (*GetPluginInfoRequest) ProtoMessage()    {}
 func (*GetPluginInfoRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_cmi_650dc7eb92cbbfa4, []int{0}
+	return fileDescriptor_cmi_44c33cf4e90c6001, []int{0}
 }
 func (m *GetPluginInfoRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetPluginInfoRequest.Unmarshal(m, b)
@@ -137,7 +137,7 @@ func (m *GetPluginInfoResponse) Reset()         { *m = GetPluginInfoResponse{} }
 func (m *GetPluginInfoResponse) String() string { return proto.CompactTextString(m) }
 func (*GetPluginInfoResponse) ProtoMessage()    {}
 func (*GetPluginInfoResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_cmi_650dc7eb92cbbfa4, []int{1}
+	return fileDescriptor_cmi_44c33cf4e90c6001, []int{1}
 }
 func (m *GetPluginInfoResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetPluginInfoResponse.Unmarshal(m, b)
@@ -188,7 +188,7 @@ func (m *GetPluginCapabilitiesRequest) Reset()         { *m = GetPluginCapabilit
 func (m *GetPluginCapabilitiesRequest) String() string { return proto.CompactTextString(m) }
 func (*GetPluginCapabilitiesRequest) ProtoMessage()    {}
 func (*GetPluginCapabilitiesRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_cmi_650dc7eb92cbbfa4, []int{2}
+	return fileDescriptor_cmi_44c33cf4e90c6001, []int{2}
 }
 func (m *GetPluginCapabilitiesRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetPluginCapabilitiesRequest.Unmarshal(m, b)
@@ -221,7 +221,7 @@ func (m *GetPluginCapabilitiesResponse) Reset()         { *m = GetPluginCapabili
 func (m *GetPluginCapabilitiesResponse) String() string { return proto.CompactTextString(m) }
 func (*GetPluginCapabilitiesResponse) ProtoMessage()    {}
 func (*GetPluginCapabilitiesResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_cmi_650dc7eb92cbbfa4, []int{3}
+	return fileDescriptor_cmi_44c33cf4e90c6001, []int{3}
 }
 func (m *GetPluginCapabilitiesResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetPluginCapabilitiesResponse.Unmarshal(m, b)
@@ -262,7 +262,7 @@ func (m *PluginCapability) Reset()         { *m = PluginCapability{} }
 func (m *PluginCapability) String() string { return proto.CompactTextString(m) }
 func (*PluginCapability) ProtoMessage()    {}
 func (*PluginCapability) Descriptor() ([]byte, []int) {
-	return fileDescriptor_cmi_650dc7eb92cbbfa4, []int{4}
+	return fileDescriptor_cmi_44c33cf4e90c6001, []int{4}
 }
 func (m *PluginCapability) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_PluginCapability.Unmarshal(m, b)
@@ -372,7 +372,7 @@ func (m *PluginCapability_RPC) Reset()         { *m = PluginCapability_RPC{} }
 func (m *PluginCapability_RPC) String() string { return proto.CompactTextString(m) }
 func (*PluginCapability_RPC) ProtoMessage()    {}
 func (*PluginCapability_RPC) Descriptor() ([]byte, []int) {
-	return fileDescriptor_cmi_650dc7eb92cbbfa4, []int{4, 0}
+	return fileDescriptor_cmi_44c33cf4e90c6001, []int{4, 0}
 }
 func (m *PluginCapability_RPC) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_PluginCapability_RPC.Unmarshal(m, b)
@@ -409,7 +409,7 @@ func (m *ProbeRequest) Reset()         { *m = ProbeRequest{} }
 func (m *ProbeRequest) String() string { return proto.CompactTextString(m) }
 func (*ProbeRequest) ProtoMessage()    {}
 func (*ProbeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_cmi_650dc7eb92cbbfa4, []int{5}
+	return fileDescriptor_cmi_44c33cf4e90c6001, []int{5}
 }
 func (m *ProbeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ProbeRequest.Unmarshal(m, b)
@@ -460,7 +460,7 @@ func (m *ProbeResponse) Reset()         { *m = ProbeResponse{} }
 func (m *ProbeResponse) String() string { return proto.CompactTextString(m) }
 func (*ProbeResponse) ProtoMessage()    {}
 func (*ProbeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_cmi_650dc7eb92cbbfa4, []int{6}
+	return fileDescriptor_cmi_44c33cf4e90c6001, []int{6}
 }
 func (m *ProbeResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ProbeResponse.Unmarshal(m, b)
@@ -512,7 +512,7 @@ func (m *CreateMachineRequest) Reset()         { *m = CreateMachineRequest{} }
 func (m *CreateMachineRequest) String() string { return proto.CompactTextString(m) }
 func (*CreateMachineRequest) ProtoMessage()    {}
 func (*CreateMachineRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_cmi_650dc7eb92cbbfa4, []int{7}
+	return fileDescriptor_cmi_44c33cf4e90c6001, []int{7}
 }
 func (m *CreateMachineRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CreateMachineRequest.Unmarshal(m, b)
@@ -564,7 +564,7 @@ type CreateMachineResponse struct {
 	// MachineID is the unique identification of the VM at the cloud provider.
 	// This could be the same/different from req.Name.
 	// MachineID typically matches with the node.Spec.ProviderID on the node object.
-	// Eg: gce://project-name/region/vm-machineID
+	// Eg: gce://project-name/region/vm-ID
 	// This field is REQUIRED.
 	MachineID string `protobuf:"bytes,1,opt,name=MachineID,proto3" json:"MachineID,omitempty"`
 	// NodeName is the name of the node-object registered to kubernetes.
@@ -585,7 +585,7 @@ func (m *CreateMachineResponse) Reset()         { *m = CreateMachineResponse{} }
 func (m *CreateMachineResponse) String() string { return proto.CompactTextString(m) }
 func (*CreateMachineResponse) ProtoMessage()    {}
 func (*CreateMachineResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_cmi_650dc7eb92cbbfa4, []int{8}
+	return fileDescriptor_cmi_44c33cf4e90c6001, []int{8}
 }
 func (m *CreateMachineResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CreateMachineResponse.Unmarshal(m, b)
@@ -651,7 +651,7 @@ func (m *DeleteMachineRequest) Reset()         { *m = DeleteMachineRequest{} }
 func (m *DeleteMachineRequest) String() string { return proto.CompactTextString(m) }
 func (*DeleteMachineRequest) ProtoMessage()    {}
 func (*DeleteMachineRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_cmi_650dc7eb92cbbfa4, []int{9}
+	return fileDescriptor_cmi_44c33cf4e90c6001, []int{9}
 }
 func (m *DeleteMachineRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_DeleteMachineRequest.Unmarshal(m, b)
@@ -715,7 +715,7 @@ func (m *DeleteMachineResponse) Reset()         { *m = DeleteMachineResponse{} }
 func (m *DeleteMachineResponse) String() string { return proto.CompactTextString(m) }
 func (*DeleteMachineResponse) ProtoMessage()    {}
 func (*DeleteMachineResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_cmi_650dc7eb92cbbfa4, []int{10}
+	return fileDescriptor_cmi_44c33cf4e90c6001, []int{10}
 }
 func (m *DeleteMachineResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_DeleteMachineResponse.Unmarshal(m, b)
@@ -763,7 +763,7 @@ func (m *GetMachineStatusRequest) Reset()         { *m = GetMachineStatusRequest
 func (m *GetMachineStatusRequest) String() string { return proto.CompactTextString(m) }
 func (*GetMachineStatusRequest) ProtoMessage()    {}
 func (*GetMachineStatusRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_cmi_650dc7eb92cbbfa4, []int{11}
+	return fileDescriptor_cmi_44c33cf4e90c6001, []int{11}
 }
 func (m *GetMachineStatusRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetMachineStatusRequest.Unmarshal(m, b)
@@ -808,7 +808,7 @@ type GetMachineStatusResponse struct {
 	// MachineID is the unique identification of the VM at the cloud provider.
 	// This could be the same/different from req.Name.
 	// MachineID typically matches with the node.Spec.ProviderID on the node object.
-	// Eg: gce://project-name/region/vm-machineID
+	// Eg: gce://project-name/region/vm-ID
 	// This field is REQUIRED.
 	MachineID string `protobuf:"bytes,1,opt,name=MachineID,proto3" json:"MachineID,omitempty"`
 	// NodeName is the name of the node-object registered to kubernetes.
@@ -823,7 +823,7 @@ func (m *GetMachineStatusResponse) Reset()         { *m = GetMachineStatusRespon
 func (m *GetMachineStatusResponse) String() string { return proto.CompactTextString(m) }
 func (*GetMachineStatusResponse) ProtoMessage()    {}
 func (*GetMachineStatusResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_cmi_650dc7eb92cbbfa4, []int{12}
+	return fileDescriptor_cmi_44c33cf4e90c6001, []int{12}
 }
 func (m *GetMachineStatusResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetMachineStatusResponse.Unmarshal(m, b)
@@ -874,7 +874,7 @@ func (m *ListMachinesRequest) Reset()         { *m = ListMachinesRequest{} }
 func (m *ListMachinesRequest) String() string { return proto.CompactTextString(m) }
 func (*ListMachinesRequest) ProtoMessage()    {}
 func (*ListMachinesRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_cmi_650dc7eb92cbbfa4, []int{13}
+	return fileDescriptor_cmi_44c33cf4e90c6001, []int{13}
 }
 func (m *ListMachinesRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListMachinesRequest.Unmarshal(m, b)
@@ -921,7 +921,7 @@ func (m *ListMachinesResponse) Reset()         { *m = ListMachinesResponse{} }
 func (m *ListMachinesResponse) String() string { return proto.CompactTextString(m) }
 func (*ListMachinesResponse) ProtoMessage()    {}
 func (*ListMachinesResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_cmi_650dc7eb92cbbfa4, []int{14}
+	return fileDescriptor_cmi_44c33cf4e90c6001, []int{14}
 }
 func (m *ListMachinesResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListMachinesResponse.Unmarshal(m, b)
@@ -974,7 +974,7 @@ func (m *ShutDownMachineRequest) Reset()         { *m = ShutDownMachineRequest{}
 func (m *ShutDownMachineRequest) String() string { return proto.CompactTextString(m) }
 func (*ShutDownMachineRequest) ProtoMessage()    {}
 func (*ShutDownMachineRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_cmi_650dc7eb92cbbfa4, []int{15}
+	return fileDescriptor_cmi_44c33cf4e90c6001, []int{15}
 }
 func (m *ShutDownMachineRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ShutDownMachineRequest.Unmarshal(m, b)
@@ -1038,7 +1038,7 @@ func (m *ShutDownMachineResponse) Reset()         { *m = ShutDownMachineResponse
 func (m *ShutDownMachineResponse) String() string { return proto.CompactTextString(m) }
 func (*ShutDownMachineResponse) ProtoMessage()    {}
 func (*ShutDownMachineResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_cmi_650dc7eb92cbbfa4, []int{16}
+	return fileDescriptor_cmi_44c33cf4e90c6001, []int{16}
 }
 func (m *ShutDownMachineResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ShutDownMachineResponse.Unmarshal(m, b)
@@ -1079,7 +1079,7 @@ func (m *GetVolumeIDsRequest) Reset()         { *m = GetVolumeIDsRequest{} }
 func (m *GetVolumeIDsRequest) String() string { return proto.CompactTextString(m) }
 func (*GetVolumeIDsRequest) ProtoMessage()    {}
 func (*GetVolumeIDsRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_cmi_650dc7eb92cbbfa4, []int{17}
+	return fileDescriptor_cmi_44c33cf4e90c6001, []int{17}
 }
 func (m *GetVolumeIDsRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetVolumeIDsRequest.Unmarshal(m, b)
@@ -1119,7 +1119,7 @@ func (m *GetVolumeIDsResponse) Reset()         { *m = GetVolumeIDsResponse{} }
 func (m *GetVolumeIDsResponse) String() string { return proto.CompactTextString(m) }
 func (*GetVolumeIDsResponse) ProtoMessage()    {}
 func (*GetVolumeIDsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_cmi_650dc7eb92cbbfa4, []int{18}
+	return fileDescriptor_cmi_44c33cf4e90c6001, []int{18}
 }
 func (m *GetVolumeIDsResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetVolumeIDsResponse.Unmarshal(m, b)
@@ -1593,10 +1593,10 @@ var _Machine_serviceDesc = grpc.ServiceDesc{
 }
 
 func init() {
-	proto.RegisterFile("github.com/gardener/machine-spec/cmi.proto", fileDescriptor_cmi_650dc7eb92cbbfa4)
+	proto.RegisterFile("github.com/gardener/machine-spec/cmi.proto", fileDescriptor_cmi_44c33cf4e90c6001)
 }
 
-var fileDescriptor_cmi_650dc7eb92cbbfa4 = []byte{
+var fileDescriptor_cmi_44c33cf4e90c6001 = []byte{
 	// 1067 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xc4, 0x56, 0x4f, 0x6f, 0xeb, 0x44,
 	0x10, 0x8f, 0xe3, 0xa4, 0x4d, 0xa7, 0x69, 0x31, 0xfb, 0xd2, 0xbe, 0xc8, 0xa4, 0x7d, 0xc1, 0x02,

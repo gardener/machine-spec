@@ -172,9 +172,9 @@ service Machine {
 }
 
 message CreateMachineRequest {
-    // Name is the name of the machine to be created by plugin.
+    // MachineName is the name of the machine object CRD for whom a VM is to be created.
     // This field is REQUIRED.
-    string Name = 1;
+    string MachineName = 1;
 
     // ProviderSpec is the configuration needed to create a machine in bytes.
     // Plugin should parse this raw data into pre-defined spec in their respective projects.
@@ -193,12 +193,12 @@ message CreateMachineRequest {
 }
 
 message CreateMachineResponse {
-    // MachineID is the unique identification of the VM at the cloud provider.
+    // ProviderID is the unique identification of the VM at the cloud provider.
     // This could be the same/different from req.Name.
-    // MachineID typically matches with the node.Spec.ProviderID on the node object.
+    // ProviderID typically matches with the node.Spec.ProviderID on the node object.
     // Eg: gce://project-name/region/vm-ID
     // This field is REQUIRED.
-    string MachineID = 1;
+    string ProviderID = 1;
 
     // NodeName is the name of the node-object registered to kubernetes.
     // This field is REQUIRED.
@@ -213,9 +213,9 @@ message CreateMachineResponse {
 }
 
 message DeleteMachineRequest {
-    // Name is the name of the machine object for which a VM is to be deleted.
+    // MachineName is the name of the machine object for which a VM is to be deleted.
     // This field is REQUIRED.
-    string Name = 1;
+    string MachineName = 1;
 
     // ProviderSpec is needed to filter VMs based a cluster before deleting.
     // Plugin should parse this raw data into pre-defined spec in their respective projects.
@@ -243,10 +243,10 @@ message DeleteMachineResponse {
 }
 
 message GetMachineStatusRequest {
-    // Name is name of the machine object from which the VM is to be identified.
+    // MachineName is name of the machine object from which the VM is to be identified.
     // The plugin is responsible to issuing a get call for a VM backed by this machine name.
     // This field is REQUIRED.
-    string Name = 1;
+    string MachineName = 1;
 
     // ProviderSpec is needed to filter VMs based a cluster before getting the status.
     // Plugin should parse this raw data into pre-defined spec in their respective projects.
@@ -259,12 +259,12 @@ message GetMachineStatusRequest {
 }
 
 message GetMachineStatusResponse {
-    // MachineID is the unique identification of the VM at the cloud provider.
+    // ProviderID is the unique identification of the VM at the cloud provider.
     // This could be the same/different from req.Name.
-    // MachineID typically matches with the node.Spec.ProviderID on the node object.
+    // ProviderID typically matches with the node.Spec.ProviderID on the node object.
     // Eg: gce://project-name/region/vm-ID
     // This field is REQUIRED.
-    string MachineID = 1;
+    string ProviderID = 1;
 
     // NodeName is the name of the node-object registered to kubernetes.
     // This field is REQUIRED.
@@ -283,16 +283,16 @@ message ListMachinesRequest {
 }
 
 message ListMachinesResponse {
-    // MachineList is the map of list of machines. Format for the map should be map<MachineID, MachineName>.
+    // MachineList is the map of list of machines. Format for the map should be map<ProviderID, MachineName>.
     // This field is REQUIRED.
     map<string, string> MachineList = 1;
 }
 
 message ShutDownMachineRequest {
-    // Name is the machine object name for whose VM, the shutdown call is to be invoked.
+    // MachineName is the machine object name for whose VM, the shutdown call is to be invoked.
     // The plugin is responsible to issuing a shutdown call for a VM backed by this machine name.
     // This field is REQUIRED.
-    string Name = 1;
+    string MachineName = 1;
 
     // ProviderSpec is needed to filter VMs based a cluster before shutting down.
     // Plugin should parse this raw data into pre-defined spec in their respective projects.

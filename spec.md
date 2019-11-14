@@ -259,7 +259,7 @@ The `MachineClass` resource contains a `providerSpec` field that is passed in th
 
 Most of the `ProviderSpec` fields are not mandatory. If not specified, the plugin passes an empty value in the respective `Create VM` parameter.
 
-The `tags` can be used to map a VM to its corresponding machine object's name
+The `tags` can be used to map a VM to its corresponding machine object's Name
 
 The `ProviderSpec` is validated by methods that receive it as a request field for presence of all mandatory parameters and tags, and for validity of all parameters.
 
@@ -489,22 +489,22 @@ A Plugin is REQUIRED to implement this RPC and set the `CREATE_MACHINE` capabili
 This RPC will be called by the CMI-Client to provision a new VM on behalf of the requesting machine object.
 
 - This call requests the plugin to create a VM backing the machine-object.
-- If VM backing the `name` already exists, and is compatible with the specified `ProviderSpec` in the `CreateMachineRequest`, the Plugin MUST reply `0 OK` with the corresponding `CreateMachineResponse`.
+- If VM backing the `MachineName` already exists, and is compatible with the specified `ProviderSpec` in the `CreateMachineRequest`, the Plugin MUST reply `0 OK` with the corresponding `CreateMachineResponse`.
 - The plugin can OPTIONALY make use of the secrets supplied in the `Secrets` map in the `CreateMachineRequest` to communicate with the provider.
 - The plugin can OPTIONALLY make use of the `LastKnownState` field to decode the state of the VM operation based on the last known state of the VM. This can be useful to restart/continue an operations which are mean't to be atomic.
 - The plugin MUST have a unique way to map a `machine object` to a `VM`. This could be implicitly provided by the provider by letting you set VM-names (or) could be explicitly specified by the plugin using appropriate tags to map the same.
 - This operation MUST be idempotent.
 
 - The `CreateMachineResponse` returned by this method is expected to return
-    - `MachineID` that uniquely identifys the VM at the provider. This is expected to match with the node.Spec.ProviderID on the node object.
+    - `ProviderID` that uniquely identifys the VM at the provider. This is expected to match with the node.Spec.ProviderID on the node object.
     - `NodeName` that is the expected name of the machine when it joins the cluster. It must match with the node name.
     - `LastKnownState` is an OPTIONAL field that can store details of the last known state of the VM. It can be used by future operation calls to determine current infrastucture state. This state is saved on the machine object.
 
 ```protobuf
 message CreateMachineRequest {
-    // Name is the name of the machine to be created by plugin.
+    // MachineName is the name of the machine object CRD for whom a VM is to be created.
     // This field is REQUIRED.
-    string Name = 1;
+    string MachineName = 1;
 
     // ProviderSpec is the configuration needed to create a machine in bytes.
     // Plugin should parse this raw data into pre-defined spec in their respective projects.
@@ -523,12 +523,12 @@ message CreateMachineRequest {
 }
 
 message CreateMachineResponse {
-    // MachineID is the unique identification of the VM at the cloud provider.
+    // ProviderID is the unique identification of the VM at the cloud provider.
     // This could be the same/different from req.Name.
-    // MachineID typically matches with the node.Spec.ProviderID on the node object.
+    // ProviderID typically matches with the node.Spec.ProviderID on the node object.
     // Eg: gce://project-name/region/vm-ID
     // This field is REQUIRED.
-    string MachineID = 1;
+    string ProviderID = 1;
 
     // NodeName is the name of the node-object registered to kubernetes.
     // This field is REQUIRED.
@@ -554,7 +554,7 @@ The CMI-Client MUST implement the specified error recovery behavior when it enco
 | 0 OK | Successful | The call was successful in creating/adopting a VM that matches supplied creation request. The `CreateMachineResponse` is returned with desired values |  | N |
 | 1 CANCELED | Cancelled | Call was cancelled. Perform any pending clean-up tasks and return the call |  | N |
 | 2 UNKNOWN | Something went wrong | Not enough information on what went wrong | Retry operation after sometime | Y |
-| 3 INVALID_ARGUMENT | Re-check supplied parameters | Re-check the supplied `Name` and `ProviderSpec`. Make sure all parameters are in permitted range of values. Exact issue to be given in `.message` | Update providerSpec to fix issues. | N |
+| 3 INVALID_ARGUMENT | Re-check supplied parameters | Re-check the supplied `MachineName` and `ProviderSpec`. Make sure all parameters are in permitted range of values. Exact issue to be given in `.message` | Update providerSpec to fix issues. | N |
 | 4 DEADLINE_EXCEEDED | Timeout | The call processing exceeded supplied deadline | Retry operation after sometime | Y |
 | 5 NOT_FOUND |  |  |  |  |
 | 6 ALREADY_EXISTS | Already exists but desired parameters doesn't match | Parameters of the existing VM don't match the ProviderSpec | Create machine with a different name | N |
@@ -577,7 +577,7 @@ This string MAY be surfaced by CMI-Client to end users.
 A Plugin is REQUIRED to implement this RPC and set the `DELETE_MACHINE` capability.
 This RPC will be called by the CMI-Client to deprovision a VM backed by the requesting machine object.
 
-- If a VM corresponding to the specified machine-object `Name` does not exist or the artifacts associated with the VM do not exist anymore (after deletion), the Plugin MUST reply `0 OK`.
+- If a VM corresponding to the specified machine-object's name does not exist or the artifacts associated with the VM do not exist anymore (after deletion), the Plugin MUST reply `0 OK`.
 - The plugin SHALL only act on machines belonging to the cluster-id/cluster-name obtained from the `ProviderSpec`.
 - The plugin can OPTIONALY make use of the secrets supplied in the `Secrets` map in the `DeleteMachineRequest` to communicate with the provider.
 - The plugin can OPTIONALLY make use of the `LastKnownState` field to decode the state of the VM operation based on the last known state of the VM. This can be useful to restart/continue an operations which are mean't to be atomic.
@@ -589,9 +589,9 @@ This RPC will be called by the CMI-Client to deprovision a VM backed by the requ
 
 ```protobuf
 message DeleteMachineRequest {
-    // Name is the name of the machine object for which a VM is to be deleted.
+    // MachineName is the name of the machine object for which a VM is to be deleted.
     // This field is REQUIRED.
-    string Name = 1;
+    string MachineName = 1;
 
     // ProviderSpec is needed to filter VMs based a cluster before deleting.
     // Plugin should parse this raw data into pre-defined spec in their respective projects.
@@ -629,7 +629,7 @@ If the conditions defined below are encountered, the plugin MUST return the spec
 | 0 OK | Successful | The call was successful in deleting a VM that matches supplied deletion request. |  | N |
 | 1 CANCELED | Cancelled | Call was cancelled. Perform any pending clean-up tasks and return the call |  | N |
 | 2 UNKNOWN | Something went wrong | Not enough information on what went wrong | Retry operation after sometime | Y |
-| 3 INVALID_ARGUMENT | Re-check supplied parameters | Re-check the supplied `Name` and make sure that it is in the desired format and not a blank value. Exact issue to be given in `.message` | Update `Name` to fix issues. | N |
+| 3 INVALID_ARGUMENT | Re-check supplied parameters | Re-check the supplied `MachineName` and make sure that it is in the desired format and not a blank value. Exact issue to be given in `.message` | Update `MachineName` to fix issues. | N |
 | 4 DEADLINE_EXCEEDED | Timeout | The call processing exceeded supplied deadline | Retry operation after sometime | Y |
 | 5 NOT_FOUND |  |  |  |  |
 | 6 ALREADY_EXISTS |  |  |  |  |
@@ -653,17 +653,17 @@ A Plugin MUST implement this RPC call if it has `GET_MACHINE_STATUS` capability.
 This RPC will be called by the CMI-Client to get the status of a machine.
 This optional RPC helps in optimizing the working of the plugin by avoiding unwanted calls to `CreateMachine()` and `DeleteMachine()`.
 
-- If a VM corresponding to the specified machine object `Name` exists on provider the `GetMachineStatusResponse` fields are to be filled similar to the `CreateMachineResponse`.
+- If a VM corresponding to the specified machine object's `MachineName` exists on provider the `GetMachineStatusResponse` fields are to be filled similar to the `CreateMachineResponse`.
 - The plugin SHALL only act on machines belonging to the cluster-id/cluster-name obtained from the `ProviderSpec`.
 - The plugin can OPTIONALY make use of the secrets supplied in the `Secrets` map in the `GetMachineStatusRequest` to communicate with the provider.
 - This operation MUST be idempotent.
 
 ```protobuf
 message GetMachineStatusRequest {
-    // Name is name of the machine object from which the VM is to be identified.
+    // MachineName is name of the machine object from which the VM is to be identified.
     // The plugin is responsible to issuing a get call for a VM backed by this machine name.
     // This field is REQUIRED.
-    string Name = 1;
+    string MachineName = 1;
 
     // ProviderSpec is needed to filter VMs based a cluster before getting the status.
     // Plugin should parse this raw data into pre-defined spec in their respective projects.
@@ -676,12 +676,12 @@ message GetMachineStatusRequest {
 }
 
 message GetMachineStatusResponse {
-    // MachineID is the unique identification of the VM at the cloud provider.
+    // ProviderID is the unique identification of the VM at the cloud provider.
     // This could be the same/different from req.Name.
-    // MachineID typically matches with the node.Spec.ProviderID on the node object.
+    // ProviderID typically matches with the node.Spec.ProviderID on the node object.
     // Eg: gce://project-name/region/vm-ID
     // This field is REQUIRED.
-    string MachineID = 1;
+    string ProviderID = 1;
 
     // NodeName is the name of the node-object registered to kubernetes.
     // This field is REQUIRED.
@@ -696,10 +696,10 @@ If the conditions defined below are encountered, the plugin MUST return the spec
 
 | gRPC Code | Condition | Description | Recovery Behavior | Auto Retry Required |
 |-----------|-----------|-------------|-------------------|------------|
-| 0 OK | Successful | The call was successful in getting machine details for given machine `Name` |  | N |
+| 0 OK | Successful | The call was successful in getting machine details for given machine `MachineName` |  | N |
 | 1 CANCELED | Cancelled | Call was cancelled. Perform any pending clean-up tasks and return the call |  | N |
 | 2 UNKNOWN | Something went wrong | Not enough information on what went wrong | Retry operation after sometime | Y |
-| 3 INVALID_ARGUMENT | Re-check supplied parameters | Re-check the supplied `Name` and make sure that it is in the desired format and not a blank value. Exact issue to be given in `.message` | Update `Name` to fix issues. | N |
+| 3 INVALID_ARGUMENT | Re-check supplied parameters | Re-check the supplied `MachineName` and make sure that it is in the desired format and not a blank value. Exact issue to be given in `.message` | Update `MachineName` to fix issues. | N |
 | 4 DEADLINE_EXCEEDED | Timeout | The call processing exceeded supplied deadline | Retry operation after sometime | Y |
 | 5 NOT_FOUND | Machine isn't found at provider | The machine could not be found at provider | Not required | N |
 | 6 ALREADY_EXISTS |  |  |  |  |
@@ -723,7 +723,7 @@ A Plugin MUST implement this RPC call if it has `SHUTDOWN_MACHINE` capability.
 This RPC will be called by the CMI-Client to shutdown a particular machine.
 This optional RPC MIGHT try to shutdown machines before deleting them. It might also be used in future for features such as restarting a machine.
 
-- If a VM corresponding to the machine `Name` is present and has accepted termination request (or) is already in terminated state, then the Plugin MUST reply `0 OK`.
+- If a VM corresponding to the `MachineName` is present and has accepted termination request (or) is already in terminated state, then the Plugin MUST reply `0 OK`.
 - The plugin SHALL only act on machines belonging to the cluster-id/cluster-name obtained from the `ProviderSpec`.
 - The plugin can OPTIONALY make use of the secrets supplied in the `Secrets` map in the `ShutDownMachineRequest` to communicate with the provider.
 - The plugin can OPTIONALLY make use of the `LastKnownState` field to decode the state of the VM operation based on the last known state of the VM. This can be useful to restart/continue an operations which are mean't to be atomic.
@@ -731,10 +731,10 @@ This optional RPC MIGHT try to shutdown machines before deleting them. It might 
 
 ```protobuf
 message ShutDownMachineRequest {
-    // Name is the machine object name for whose VM, the shutdown call is to be invoked.
+    // MachineName is the machine object name for whose VM, the shutdown call is to be invoked.
     // The plugin is responsible to issuing a shutdown call for a VM backed by this machine name.
     // This field is REQUIRED.
-    string Name = 1;
+    string MachineName = 1;
 
     // ProviderSpec is needed to filter VMs based a cluster before shutting down.
     // Plugin should parse this raw data into pre-defined spec in their respective projects.
@@ -772,7 +772,7 @@ If the conditions defined below are encountered, the plugin MUST return the spec
 | 0 OK | Successful | The termination request for the VM was accepted (or) the VM is already in terminated state. |  | N |
 | 1 CANCELED | Cancelled | Call was cancelled. Perform any pending clean-up tasks and return the call |  | N |
 | 2 UNKNOWN | Something went wrong | Not enough information on what went wrong | Retry operation after sometime | Y |
-| 3 INVALID_ARGUMENT | Re-check supplied parameters | Re-check the supplied `Name` and make sure that it is in the desired format and not a blank value. Exact issue to be given in `.message` | Update `Name` to fix issues. | N |
+| 3 INVALID_ARGUMENT | Re-check supplied parameters | Re-check the supplied `MachineName` and make sure that it is in the desired format and not a blank value. Exact issue to be given in `.message` | Update `MachineName` to fix issues. | N |
 | 4 DEADLINE_EXCEEDED | Timeout | The call processing exceeded supplied deadline | Retry operation after sometime | Y |
 | 5 NOT_FOUND |  |  |  |  |
 | 6 ALREADY_EXISTS |  |  |  |  |
@@ -797,9 +797,9 @@ The Plugin SHALL return the information about all the machines associated with t
 Make sure to use appropriate filters to achieve the same to avoid data transfer overheads.
 This optional RPC helps in cleaning up orphan VMs present in the cluster. If not implemented, any orphan VM that might have been created incorrectly by the CMI-Client/Plugin (due to bugs in code/infra) might require manual clean up.
 
-- If the Plugin succeeded in returning a list of `MachineName` with their corresponding `MachineID`, then return `0 OK`.
+- If the Plugin succeeded in returning a list of `MachineName` with their corresponding `ProviderID`, then return `0 OK`.
 - The `ListMachineResponse` contains a map of `MachineList` whose
-    - Key is expected to contain the `MachineID` &
+    - Key is expected to contain the `ProviderID` &
     - Value is expected to contain the `MachineName` corresponding to it's kubernetes machine CR object
 - The plugin can OPTIONALY make use of the secrets supplied in the `Secrets` map in the `ListMachinesRequest` to communicate with the provider.
 
@@ -816,7 +816,7 @@ message ListMachinesRequest {
 }
 
 message ListMachinesResponse {
-    // MachineList is the map of list of machines. Format for the map should be map<MachineID, MachineName>.
+    // MachineList is the map of list of machines. Format for the map should be map<ProviderID, MachineName>.
     // This field is REQUIRED.
     map<string, string> MachineList = 1;
 }

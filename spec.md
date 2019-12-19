@@ -580,6 +580,7 @@ This RPC will be called by the CMI-Client to deprovision a VM backed by the requ
 - If a VM corresponding to the specified machine-object's name does not exist or the artifacts associated with the VM do not exist anymore (after deletion), the Plugin MUST reply `0 OK`.
 - The plugin SHALL only act on machines belonging to the cluster-id/cluster-name obtained from the `ProviderSpec`.
 - The plugin can OPTIONALY make use of the secrets supplied in the `Secrets` map in the `DeleteMachineRequest` to communicate with the provider.
+- The plugin can OPTIONALY make use of the VM unique ID (returned by the plugin on machine creation) passed in the `ProviderID` map in the `DeleteMachineRequest`.
 - The plugin can OPTIONALLY make use of the `LastKnownState` field to decode the state of the VM operation based on the last known state of the VM. This can be useful to restart/continue an operations which are mean't to be atomic.
 - This operation MUST be idempotent.
 - The plugin must have a unique way to map a `machine object` to a `VM` which triggers the deletion for the corresponding VM backing the machine object.
@@ -602,11 +603,18 @@ message DeleteMachineRequest {
     // This field is OPTIONAL.
     map<string, bytes> Secrets = 3 [(cmi_secret) = true];
 
+    // ProviderID is the unique identification of the VM at the cloud provider.
+    // This could be the same/different from req.Name.
+    // ProviderID typically matches with the node.Spec.ProviderID on the node object.
+    // Eg: gce://project-name/region/vm-ID
+    // This field is OPTIONAL.
+    string ProviderID = 4;
+
     // LastKnownState is any additional information (if required) that can used by the plugin.
     // It can be used by the plugin to recover from the last execution/error state.
     // Plugin should parse this raw data into it's desired format.
     // This field is OPTIONAL.
-    bytes LastKnownState = 4;
+    bytes LastKnownState = 5;
 }
 
 message DeleteMachineResponse {
@@ -656,6 +664,7 @@ This optional RPC helps in optimizing the working of the plugin by avoiding unwa
 - If a VM corresponding to the specified machine object's `MachineName` exists on provider the `GetMachineStatusResponse` fields are to be filled similar to the `CreateMachineResponse`.
 - The plugin SHALL only act on machines belonging to the cluster-id/cluster-name obtained from the `ProviderSpec`.
 - The plugin can OPTIONALY make use of the secrets supplied in the `Secrets` map in the `GetMachineStatusRequest` to communicate with the provider.
+- The plugin can OPTIONALY make use of the VM unique ID (returned by the plugin on machine creation) passed in the `ProviderID` map in the `GetMachineStatusRequest`.
 - This operation MUST be idempotent.
 
 ```protobuf
@@ -673,6 +682,13 @@ message GetMachineStatusRequest {
     // Secrets is the map containing necessary credentials for cloud-provider to list the machines.
     // This field is OPTIONAL.
     map<string, bytes> Secrets = 3 [(cmi_secret) = true];
+
+    // ProviderID is the unique identification of the VM at the cloud provider.
+    // This could be the same/different from req.Name.
+    // ProviderID typically matches with the node.Spec.ProviderID on the node object.
+    // Eg: gce://project-name/region/vm-ID
+    // This field is OPTIONAL.
+    string ProviderID = 4;
 }
 
 message GetMachineStatusResponse {
@@ -726,6 +742,7 @@ This optional RPC MIGHT try to shutdown machines before deleting them. It might 
 - If a VM corresponding to the `MachineName` is present and has accepted termination request (or) is already in terminated state, then the Plugin MUST reply `0 OK`.
 - The plugin SHALL only act on machines belonging to the cluster-id/cluster-name obtained from the `ProviderSpec`.
 - The plugin can OPTIONALY make use of the secrets supplied in the `Secrets` map in the `ShutDownMachineRequest` to communicate with the provider.
+- The plugin can OPTIONALY make use of the VM unique ID (returned by the plugin on machine creation) passed in the `ProviderID` map in the `ShutDownMachineRequest`.
 - The plugin can OPTIONALLY make use of the `LastKnownState` field to decode the state of the VM operation based on the last known state of the VM. This can be useful to restart/continue an operations which are mean't to be atomic.
 - This operation MUST be idempotent.
 
@@ -745,11 +762,18 @@ message ShutDownMachineRequest {
     // This field is OPTIONAL.
     map<string, bytes> Secrets = 3 [(cmi_secret) = true];
 
+    // ProviderID is the unique identification of the VM at the cloud provider.
+    // This could be the same/different from req.Name.
+    // ProviderID typically matches with the node.Spec.ProviderID on the node object.
+    // Eg: gce://project-name/region/vm-ID
+    // This field is OPTIONAL.
+    string ProviderID = 4;
+
     // LastKnownState is any additional information (if required) that can used by the plugin.
     // It can be used by the plugin to recover from the last execution/error state.
     // Plugin should parse this raw data into it's desired format.
     // This field is OPTIONAL.
-    bytes LastKnownState = 4;
+    bytes LastKnownState = 5;
 }
 
 message ShutDownMachineResponse {
